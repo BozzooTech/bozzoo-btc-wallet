@@ -51,7 +51,7 @@ export default function Send() {
       const addrInfo = await deriveAddress(xpub, state.currentAddressType, state.currentAddressIndex, accIndex);
       setCurrentAddress(addrInfo.address);
       const balInfo = await getAddressBalance(addrInfo.address);
-      setBalanceSats(balInfo.total);
+      setBalanceSats(balInfo.confirmed);
       const rates = await getFeeRates();
       setFeeRatesLocal(rates);
       const price = await getBtcPrice();
