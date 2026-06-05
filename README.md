@@ -159,7 +159,7 @@ The wallet includes an **optional, transparent** donation checkbox on the send s
 - **Calculated Minimums** — Automatically calculates a minimum $0.30 equivalent to prevent network dust rejections.
 - **Transparent** — The exact donation amount in BTC and USD is displayed clearly in the transaction breakdown before broadcasting.
 
-**If you fork this project**, you can update the `DONATION_ADDRESS` in [`src/engine/transaction.ts`](src/engine/transaction.ts) to your own Bitcoin address to receive support from your users!
+**If you fork this project**, you can easily update the `DONATION_ADDRESS` (`bc1quh3kk0499s9vngls6sfghuhrn52j9l0pvn8f3k`) in [`src/engine/transaction.ts`](src/engine/transaction.ts) to your own Bitcoin address to passively receive support from your users!
 
 ---
 
