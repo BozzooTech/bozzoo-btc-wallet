@@ -16,7 +16,7 @@ There are many Bitcoin web wallets available, but Bozzoo was built from the grou
 |---|---|---|
 | **Multi-Send (Batching)** | ✅ Send to up to 20 addresses in a single transaction, cutting network fees by up to 60%. | ❌ Usually restricted to 1 transaction per recipient. |
 | **Advanced Coin Control** | ✅ Full manual UTXO selection for ultimate privacy. You choose exactly which coins to spend. | ⚠️ Rarely supported, or hidden behind complex "pro" menus. |
-| **Real-time Dynamic Fees** | ✅ Uses live data from `mempool.space` to ensure you never overpay for block inclusion. | ⚠️ Frequently use delayed or static node RPC fee estimates. |
+| **Real-time Dynamic Fees** | ✅ Uses pure live data from a native fallback network (`mempool.space`, `mempool.ninja`) without artificially inflating numbers. If the network is quiet, we tell you, and let you pay the absolute minimum. | ⚠️ Frequently use delayed or static node RPC fee estimates and artificially bump ranges. |
 | **100% Free & Transparent** | ✅ Zero hidden routing fees. We use a strictly voluntary donation model (minimum $0.30 equivalent). | ❌ Often inject hidden swap fees or flat platform taxes. |
 | **Complete Address Support**| ✅ Seamlessly toggle between Legacy, Nested SegWit, Native SegWit, and Taproot. | ⚠️ Usually locked into Native SegWit or Taproot only. |
 ---
@@ -44,7 +44,7 @@ There are many Bitcoin web wallets available, but Bozzoo was built from the grou
 | **Password** | Never stored anywhere. Derived on the fly via PBKDF2-SHA256 (100k iterations). |
 | **Private Keys** | Never stored. Derived purely on-demand at signing, and wiped from memory immediately. |
 | **Session State** | Completely cleared from memory upon lock or browser close. |
-| **Network Requests** | Only contacts public Esplora backends (`mempool.space` and `blockstream.info`). No tracking servers. |
+| **Network Requests** | Openly documented and completely transparent. We strictly query public APIs for balances and fees (`mempool.space`, `blockchain.info`, `api.binance.com`, `mempool.ninja`). No tracking servers, no telemetry, and zero user-data collection. |
 
 ---
 
@@ -58,6 +58,8 @@ There are many Bitcoin web wallets available, but Bozzoo was built from the grou
 ## 🚀 Installation & Build
 
 ### 1. Clone the repository
+
+Click the copy button on the block below to copy the command, then paste it into your terminal:
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/bozzoo-btc-wallet.git
