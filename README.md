@@ -1,8 +1,9 @@
+
 <p align="center">
-  <img src="assets/icon-128.png" alt="Bozzoo Wallet Logo" width="128" height="128" />
+  <img src="assets/icon-128.png" alt="Bozzoo Wallet Logo" width="150" height="150" style="filter:drop-shadow(0 0 25px rgba(255, 165, 0, 0.3));"/>
 </p>
 
-# Bozzoo Bitcoin Wallet
+# Bozzoo HD Bitcoin Wallet
 
 A **privacy-focused, open-source, non-custodial HD Bitcoin wallet** built specifically as a secure browser extension.
 
@@ -197,7 +198,7 @@ bozzoo-btc-wallet/
 
 ---
 
-## 🤝 Contributing
+## &#x2764; Contributing
 
 Contributions are incredibly welcome! Please open an issue or submit a pull request.
 
