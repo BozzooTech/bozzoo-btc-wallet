@@ -210,6 +210,13 @@ Contributions are incredibly welcome! Please open an issue or submit a pull requ
 
 ---
 
+## 📬 Contact
+
+For support, security disclosures, or business inquiries, reach out securely:
+**Email:** `contact.bozzoo@proton.me`
+
+---
+
 ## 📄 License
 
 MIT — see [LICENSE](LICENSE) for details.
