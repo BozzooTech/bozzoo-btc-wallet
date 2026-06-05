@@ -9,7 +9,7 @@
     "build:firefox": "cross-env BROWSER=firefox webpack --mode production",
     "build:all": "npm run build && npm run build:firefox",
     "package:all": "npm run build:all",
-    "setup": "npm install && npm run package:all",
+    "setup": "npm ci && npm run package:all",
     "type-check": "tsc --noEmit",
     "lint": "eslint src/**/*.{js,ts}",
     "test": "jest --forceExit --detectOpenHandles",

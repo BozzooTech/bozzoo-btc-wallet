@@ -212,7 +212,7 @@ Contributions are incredibly welcome! Please open an issue or submit a pull requ
 
 ## 📬 Contact
 
-For support, security disclosures, or business inquiries, reach out securely:
+For support or security disclosures, reach out securely:
 **Email:** `contact.bozzoo@proton.me`
 
 ---
