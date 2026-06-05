@@ -40,7 +40,6 @@
     "cross-env": "^7.0.3",
     "crypto-browserify": "^3.12.1",
     "css-loader": "^6.10.0",
-    "elliptic": "^6.6.1",
     "jest": "^30.4.2",
     "jimp": "^1.6.1",
     "mini-css-extract-plugin": "^2.8.1",
@@ -50,10 +49,13 @@
     "ts-loader": "^9.5.1",
     "tslib": "^2.8.1",
     "typescript": "^5.3.3",
-    "uuid": "^14.0.0",
     "webpack": "^5.107.2",
     "webpack-cli": "^7.0.3",
     "webpack-dev-server": "^5.2.4"
+  },
+  "overrides": {
+    "elliptic": "^6.6.1",
+    "uuid": "^11.1.1"
   },
   "author": "BozzooTech",
   "license": "MIT",
