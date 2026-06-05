@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/icon-128.png" alt="Bozzoo Wallet Logo" width="128" height="128" />
+</p>
+
 # Bozzoo Bitcoin Wallet
 
 A **privacy-focused, open-source, non-custodial HD Bitcoin wallet** built specifically as a secure browser extension.
@@ -6,12 +10,12 @@ Built entirely in **TypeScript** using battle-tested, audited Bitcoin libraries 
 
 Compatible with **Chrome, Brave, Edge, Firefox, and Tor Browser**.
 
-## 🕊️ 100% Free Forever
+## 100% Free Forever
 This wallet was built by and for the Bitcoin community. It is **completely free** for everyone to use. There are absolutely no hidden platform taxes, no "premium" upgrades, and no paid features. We believe privacy-preserving Bitcoin tools should be accessible, open-source, and strictly non-profit.
 
 ---
 
-## 🏆 Why Bozzoo? (How We Compare)
+## Why Bozzoo? (How We Compare)
 
 There are many Bitcoin web wallets available, but Bozzoo was built from the ground up to solve the friction points power users face every day. We prioritize **fee efficiency, ultimate privacy, and total transparency**.
 
@@ -24,7 +28,7 @@ There are many Bitcoin web wallets available, but Bozzoo was built from the grou
 | **Complete Address Support**| ✅ Seamlessly toggle between Legacy, Nested SegWit, Native SegWit, and Taproot. | ⚠️ Usually locked into Native SegWit or Taproot only. |
 ---
 
-## ✨ Complete Feature List
+##  Complete Feature List
 
 - **Non-Custodial** — You hold the keys. No servers, no accounts, no KYC.
 - **4 Address Types Supported** — Legacy (P2PKH), Nested SegWit (P2SH), Native SegWit (P2WPKH), Taproot (P2TR).
@@ -39,7 +43,7 @@ There are many Bitcoin web wallets available, but Bozzoo was built from the grou
 
 ---
 
-## 🔒 Security Model
+##  Security Model
 
 | Component | Implementation |
 |---|---|
@@ -51,14 +55,14 @@ There are many Bitcoin web wallets available, but Bozzoo was built from the grou
 
 ---
 
-## 🛠️ Prerequisites
+##  Prerequisites
 
 - **Node.js** ≥ 18 ([download](https://nodejs.org))
 - **npm** ≥ 9 (included with Node.js)
 
 ---
 
-## 🚀 Installation & Build
+##  Installation & Build
 
 ### 1. Clone the repository
 
@@ -102,7 +106,7 @@ This compiles both versions and generates the final `.zip` artifacts in the `rel
 
 ---
 
-## 🌐 Loading the Extension in Your Browser
+##  Loading the Extension in Your Browser
 
 ### Chromium-based Engines (Chrome, Brave, Edge)
 
@@ -129,7 +133,7 @@ This compiles both versions and generates the final `.zip` artifacts in the `rel
 
 ---
 
-## 🧪 Development
+##  Development
 
 ### Run locally (Development Server)
 ```bash
@@ -154,7 +158,7 @@ npm run type-check
 
 ---
 
-## ❤️ Voluntary Donation
+##  Voluntary Donation
 
 The wallet includes an **optional, transparent** donation checkbox on the send screen to support ongoing open-source development.
 
