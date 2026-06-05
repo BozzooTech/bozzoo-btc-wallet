@@ -280,7 +280,7 @@ export default function Dashboard() {
                           )}
                         </button>
                       </div>
-                      <div className="tx-date">{timeStr} &middot; {date.toLocaleDateString()}</div>
+                      <div className="tx-date">{isPending ? <span style={{ color: 'var(--yellow)' }}>Pending Confirmation...</span> : `${timeStr} \u00B7 ${date.toLocaleDateString()}`}</div>
                     </div>
                     <div className="tx-amount">
                       <div className={`tx-amount__btc ${isSent ? 'tx-amount__btc--sent' : 'tx-amount__btc--received'}`}>
