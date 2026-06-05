@@ -1,0 +1,143 @@
+/* Send page styles */
+
+.send-page { display:flex; flex-direction:column; height:100%; }
+.send-content { flex:1; overflow-y:auto; padding:var(--s4); display:flex; flex-direction:column; gap:var(--s4); }
+.send-footer   { padding:var(--s4); border-top:1px solid var(--border); background:var(--bg-base); }
+
+/* Amount input with BTC/SATS toggle */
+.amount-input-wrap { position:relative; }
+.amount-input { font-size:16px; font-family:var(--font-mono); padding-right:72px !important; }
+.amount-unit-toggle {
+  position:  absolute;
+  right:     6px;
+  top:       50%;
+  transform: translateY(-50%);
+  background: var(--bg-surface-3);
+  border:    1px solid var(--border-strong);
+  color:     var(--orange);
+  font-size: 11px;
+  font-weight:700;
+  padding:   4px 8px;
+  border-radius: var(--r-sm);
+  cursor:    pointer;
+  transition: all var(--trans);
+  letter-spacing: 0.04em;
+}
+.amount-unit-toggle:hover { background:var(--orange-glow); border-color:var(--border-orange); }
+
+/* Fee speed selector */
+.fee-speed-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s2);
+}
+.fee-speed-btn {
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  gap:             4px;
+  padding:         10px var(--s3);
+  background:      var(--bg-surface);
+  border:          1px solid var(--border);
+  border-radius:   var(--r-md);
+  cursor:          pointer;
+  transition:      all var(--trans);
+  color:           var(--text-secondary);
+  font-family:     var(--font);
+}
+.fee-speed-btn:hover { border-color:var(--border-strong); color:var(--text-primary); }
+.fee-speed-btn--active {
+  border-color:  var(--orange);
+  background:    var(--orange-glow);
+  color:         var(--text-primary);
+}
+.fee-speed-btn__icon   { font-size:18px; }
+.fee-speed-btn__label  { font-size:11px; font-weight:700; }
+.fee-speed-btn__rate   { font-size:10px; color:var(--text-muted); font-family:var(--font-mono); }
+.fee-speed-btn--active .fee-speed-btn__rate { color:var(--orange-light); }
+
+/* Fee breakdown */
+.fee-breakdown {
+  background:    var(--bg-surface);
+  border:        1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow:      hidden;
+}
+.fee-breakdown__loading {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  padding:         var(--s6);
+  color:           var(--text-muted);
+  font-size:       13px;
+  gap:             var(--s3);
+}
+.fee-breakdown__rows { padding:var(--s2) var(--s4); }
+.fee-dev-note {
+  font-size:   11px;
+  color:       var(--text-muted);
+  text-align:  center;
+  padding:     var(--s2) var(--s4) var(--s3);
+  border-top:  1px solid var(--border-subtle);
+}
+
+/* Send max chip */
+.send-max-chip {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           4px;
+  font-size:     11px;
+  font-weight:   700;
+  color:         var(--orange);
+  background:    var(--orange-glow);
+  border:        1px solid var(--border-orange);
+  border-radius: var(--r-full);
+  padding:       3px 10px;
+  cursor:        pointer;
+  transition:    all var(--trans);
+  margin-top:    var(--s2);
+}
+.send-max-chip:hover { background:rgba(247,147,26,0.25); }
+
+/* Confirmation screen */
+.confirm-overlay {
+  position:  fixed;
+  inset:     0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter:blur(6px);
+  display:   flex;
+  align-items: flex-end;
+  z-index:   100;
+  animation: overlayIn 0.2s ease both;
+}
+@keyframes overlayIn { from{opacity:0} to{opacity:1} }
+
+.confirm-sheet {
+  width:         100%;
+  background:    var(--bg-surface);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  border-top:    1px solid var(--border-strong);
+  padding:       var(--s6) var(--s5) var(--s5);
+  animation:     sheetUp 0.25s var(--ease) both;
+}
+@keyframes sheetUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+
+.confirm-sheet__title {
+  text-align:   center;
+  font-size:    17px;
+  font-weight:  800;
+  margin-bottom: var(--s5);
+}
+.confirm-sheet__amount {
+  text-align:  center;
+  font-size:   28px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color:       var(--orange);
+  margin-bottom: var(--s5);
+}
+.confirm-sheet__actions {
+  display: flex;
+  gap:     var(--s3);
+  margin-top: var(--s5);
+}

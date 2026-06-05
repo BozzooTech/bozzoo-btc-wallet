@@ -1,0 +1,172 @@
+/* Dashboard page styles */
+
+/*  Balance Card  */
+.balance-card {
+  margin:          var(--s4);
+  padding:         var(--s6);
+  background:      linear-gradient(145deg,#0F1A2B,#0D1520);
+  border:          1px solid var(--border-orange);
+  border-radius:   var(--r-xl);
+  box-shadow:      var(--shadow-orange), var(--shadow-md);
+  text-align:      center;
+  position:        relative;
+  overflow:        hidden;
+}
+.balance-card::before {
+  content:         '';
+  position:        absolute;
+  top:             -40px;
+  right:           -40px;
+  width:           120px;
+  height:          120px;
+  background:      radial-gradient(circle,rgba(247,147,26,0.15),transparent 70%);
+  border-radius:   50%;
+  pointer-events:  none;
+}
+
+.balance-card__label {
+  font-size:      11px;
+  font-weight:    700;
+  color:          var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom:  var(--s3);
+}
+
+.balance-card__btc {
+  font-size:   32px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+  color:       var(--text-primary);
+}
+.balance-card__btc span { color: var(--orange); }
+
+.balance-card__usd {
+  font-size:    14px;
+  color:        var(--text-secondary);
+  margin-top:   var(--s2);
+}
+
+.balance-card__unconfirmed {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           4px;
+  font-size:     11px;
+  color:         var(--yellow);
+  margin-top:    var(--s2);
+  background:    rgba(255,184,0,0.1);
+  padding:       3px 10px;
+  border-radius: var(--r-full);
+}
+
+.balance-refresh {
+  position:  absolute;
+  top:       var(--s3);
+  right:     var(--s3);
+  background: rgba(255,255,255,0.06);
+  border:    none;
+  border-radius: var(--r-sm);
+  color:     var(--text-muted);
+  width:     28px;
+  height:    28px;
+  display:   flex;
+  align-items: center;
+  justify-content: center;
+  cursor:    pointer;
+  transition: all var(--trans);
+  font-size: 13px;
+}
+.balance-refresh:hover { color: var(--orange); background: var(--orange-glow); }
+.balance-refresh--spinning svg,
+.balance-refresh--spinning { animation: spin 1s linear infinite; }
+
+/*  Action Buttons  */
+.action-row {
+  display:    grid;
+  grid-template-columns: 1fr 1fr;
+  gap:        var(--s3);
+  padding:    0 var(--s4);
+  margin-top: var(--s1);
+}
+.action-btn {
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  gap:             6px;
+  padding:         var(--s4) var(--s3);
+  background:      var(--bg-surface);
+  border:          1px solid var(--border);
+  border-radius:   var(--r-lg);
+  cursor:          pointer;
+  transition:      all var(--trans);
+  color:           var(--text-primary);
+  font-family:     var(--font);
+}
+.action-btn:hover {
+  background:      var(--bg-surface-2);
+  border-color:    var(--border-orange);
+  box-shadow:      var(--shadow-orange);
+}
+.action-btn--send .action-btn__icon { color: var(--red); }
+.action-btn--recv .action-btn__icon { color: var(--green); }
+.action-btn__icon { font-size: 22px; }
+.action-btn__label { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+
+/*  Dashboard Sections  */
+.dashboard-section {
+  padding: var(--s4) var(--s4) 0;
+}
+.dashboard-section + .dashboard-section { margin-top: var(--s1); }
+
+/*  Current Address Card  */
+.current-addr {
+  background:    var(--bg-surface);
+  border:        1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow:      hidden;
+}
+.current-addr__type {
+  display:      flex;
+  align-items:  center;
+  gap:          var(--s2);
+  padding:      var(--s3) var(--s4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.current-addr__type-badge {
+  background:    var(--orange-grad);
+  color:         #fff;
+  font-size:     10px;
+  font-weight:   700;
+  padding:       2px 8px;
+  border-radius: var(--r-full);
+}
+.current-addr__index { font-size: 11px; color: var(--text-muted); margin-left: auto; }
+.current-addr__value {
+  padding:     var(--s3) var(--s4);
+  font-family: var(--font-mono);
+  font-size:   11px;
+  color:       var(--text-secondary);
+  word-break:  break-all;
+  line-height: 1.5;
+}
+.current-addr__actions {
+  display:     flex;
+  gap:         var(--s2);
+  padding:     var(--s2) var(--s3);
+  border-top:  1px solid var(--border-subtle);
+  background:  var(--bg-surface-2);
+}
+
+/*  Tx Section  */
+.tx-section {
+  flex: 1;
+  overflow: hidden;
+}
+.tx-section__header {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  padding:         var(--s4) var(--s4) var(--s3);
+}

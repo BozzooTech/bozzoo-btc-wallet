@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bozzoo - Bitcoin Wallet</title>
+  <meta name="description"
+    content="Privacy-focused, non-custodial Bitcoin wallet. Fast, secure, and fully open-source. Send and receive Bitcoin with ease." />
+  <meta name="keywords" content="Bitcoin, BTC, Wallet, Crypto, Non-custodial, Open Source" />
+  <meta name="author" content="Bozzoo" />
+  <meta property="og:title" content="Bozzoo — Bitcoin Wallet" />
+  <meta property="og:description"
+    content="Privacy-focused, non-custodial Bitcoin wallet. Fast, secure, and fully open-source." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/assets/icon-48.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icon-16.png" />
+  <link rel="icon" type="image/png" href="/assets/icon.png" />
+  <link rel="stylesheet" href="styles/popup.css" />
+</head>
+
+<body>
+  <!-- Global Navigation Header -->
+  <header id="global-header" class="global-header" style="display: none;">
+    <button id="back-btn" class="header-btn" style="display: none;" title="Go Back">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+    </button>
+    <div class="header-spacer"></div>
+    <button id="expand-btn" class="header-btn" style="display: none;" title="Expand to Full Tab">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+      </svg>
+    </button>
+  </header>
+
+  <div id="app">
+    <div class="splash" style="width: 100%;height: 100%;display: flex;justify-content: center;align-items: center;">
+      <div class="splash__logo">
+        <img src="assets/icon.png" alt="Bozzoo Logo"
+          style="width: 75px; height: 75px; filter: drop-shadow(0 4px 7px rgba(247, 148, 26, 0.68)); margin-bottom: 12px" />
+        <h1 class="splash__name">Bozzoo</h1>
+        <p class="splash__tagline">Bitcoin Wallet</p>
+      </div>
+      <div class="splash__spinner">
+        <div class="spinner"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+
+</html>
