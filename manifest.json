@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Bozzoo HD Bitcoin Wallet",
+  "name": "Bozzoo Bitcoin Wallet",
   "version": "1.0.0",
   "description": "Privacy-focused Bitcoin wallet with robust security. Private keys never leave your device. Supports Legacy, SegWit & Taproot. 100% free and open-source.",
   "icons": {

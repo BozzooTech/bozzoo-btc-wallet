@@ -3,7 +3,7 @@
   <img src="assets/icon-128.png" alt="Bozzoo Wallet Logo" width="150" height="150" style="filter:drop-shadow(0 0 25px rgba(255, 165, 0, 0.3));"/>
 </p>
 
-# Bozzoo HD Bitcoin Wallet
+# Bozzoo  Bitcoin Wallet
 
 A **privacy-focused, open-source, non-custodial HD Bitcoin wallet** built specifically as a secure browser extension.
 
@@ -70,7 +70,7 @@ There are many Bitcoin web wallets available, but Bozzoo was built from the grou
 Click the copy button on the block below to copy the command, then paste it into your terminal:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/bozzoo-btc-wallet.git
+git clone https://github.com/BozzooTech/bozzoo-btc-wallet.git
 cd bozzoo-btc-wallet
 ```
 
