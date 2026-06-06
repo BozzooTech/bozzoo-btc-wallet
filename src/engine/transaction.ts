@@ -183,6 +183,10 @@ function calculateTransactionPlan(
     ? 0
     : Math.max(0, totalIn - totalAmountSats - minerFee);
 
+  if (change > 0 && change < 546) {
+    throw new Error(`Transaction creates dust change of ${change} sats which would be lost to miner fees. Please adjust your amount slightly or use Send Max.`);
+  }
+
   return {
     selectedUTXOs,
     minerFee,
