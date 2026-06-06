@@ -1,5 +1,5 @@
 /**
- * Bozzoo BTC Wallet — HD Wallet Engine (TypeScript)
+ * Bozzoo BTC Wallet - HD Wallet Engine (TypeScript)
  *
  * Derives Bitcoin addresses for all 4 supported types from a BIP-39 seed phrase.
  * Uses BIP-44/49/84/86 derivation paths.
@@ -51,7 +51,7 @@ export async function verifyPasswordHash(password: string): Promise<boolean> {
     }
     return false;
   } catch {
-    // Legacy: plain hex hash with old hardcoded salt — still support for migration
+    // Legacy: plain hex hash with old hardcoded salt - still support for migration
     const legacyHash = await pbkdf2Async(sha256, password, 'bozzoo-salt', { c: 100000, dkLen: 32 });
     const isCorrect = bytesToHex(legacyHash) === storedHashData;
     if (isCorrect) {
@@ -67,7 +67,7 @@ export async function unlockWallet(password: string) {
   const storedHashData = await getPasswordHash();
   if (!storedHashData) {
     // If no password hash exists but encrypted seed does,
-    // storage has been tampered with — refuse to unlock.
+    // storage has been tampered with - refuse to unlock.
     const seedJson = await getEncryptedSeed();
     if (seedJson) return null; // Tampered: seed exists but hash was deleted
     return null; // No wallet exists
@@ -298,7 +298,7 @@ export async function deriveAddress(
 
 /**
  * Derives a signing keypair for a specific address.
- * Used ONLY during transaction signing — the result is never stored or logged.
+ * Used ONLY during transaction signing - the result is never stored or logged.
  *
  * @param mnemonic    - Decrypted seed phrase
  * @param addressType - Address type

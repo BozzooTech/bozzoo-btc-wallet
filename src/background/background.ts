@@ -1,5 +1,5 @@
 /**
- * Bozzoo BTC Wallet — Background Service Worker (TypeScript)
+ * Bozzoo BTC Wallet - Background Service Worker (TypeScript)
  *
  * Handles:
  *  - Auto-lock alarm (10-minute inactivity timer)
@@ -77,7 +77,7 @@ chrome.alarms.onAlarm.addListener((alarm: chrome.alarms.Alarm) => {
     chrome.storage.session.remove(SESSION_KEY, () => {
       // Notify any open popup that the session has expired
       chrome.runtime.sendMessage({ type: 'AUTO_LOCK' }).catch(() => {
-        // Popup may be closed — ignore the error
+        // Popup may be closed - ignore the error
       });
       setBadgeLocked();
     });

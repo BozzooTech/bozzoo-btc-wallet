@@ -1,5 +1,5 @@
 /**
- * Bozzoo BTC Wallet — Application State (TypeScript)
+ * Bozzoo BTC Wallet - Application State (TypeScript)
  *
  * Single shared state object for the popup UI.
  * Session is synced to background script (chrome.storage.session)
@@ -25,7 +25,7 @@ const DEFAULT_STATE: AppState = {
 
 /**
  * Global wallet state.
- * Mutate directly — state is a plain object (no reactivity needed for a popup).
+ * Mutate directly - state is a plain object (no reactivity needed for a popup).
  */
 export const state: AppState = { ...DEFAULT_STATE };
 
@@ -37,10 +37,10 @@ export function clearSession(): void {
   state.pendingTxs = [];
   state.accounts = [];
   state.activeAccountId = null;
-  
+
   const isExtension = typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id;
   if (isExtension) {
-    chrome.runtime.sendMessage({ type: 'CLEAR_SESSION' }).catch(() => {});
+    chrome.runtime.sendMessage({ type: 'CLEAR_SESSION' }).catch(() => { });
   } else if (typeof window !== 'undefined' && window.sessionStorage) {
     window.sessionStorage.removeItem('bozzoo_dev_session');
   }
@@ -61,11 +61,11 @@ export async function saveSessionToBackground(): Promise<void> {
       unlockedXpubs: state.unlockedXpubs,
       lastActive: Date.now()
     };
-    
+
     try {
       const hash = await getPasswordHash();
       if (!hash) return;
-      
+
       const encryptedSession = await encrypt(JSON.stringify(sessionData), hash);
       const obfuscatedString = encryptedSession.data;
 
@@ -73,7 +73,7 @@ export async function saveSessionToBackground(): Promise<void> {
         chrome.runtime.sendMessage({
           type: 'SAVE_SESSION',
           sessionData: obfuscatedString
-        }).catch(() => {});
+        }).catch(() => { });
       } else if (typeof window !== 'undefined' && window.sessionStorage) {
         window.sessionStorage.setItem('bozzoo_dev_session', obfuscatedString);
       }
@@ -86,13 +86,13 @@ export async function saveSessionToBackground(): Promise<void> {
 /** Checks if the session is still active in background (within 10 minutes) */
 export async function loadSessionFromBackground(): Promise<boolean> {
   const isExtension = typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id;
-  
+
   const processSessionData = async (obfuscatedData: any) => {
     try {
       if (typeof obfuscatedData === 'string') {
         const hash = await getPasswordHash();
         if (!hash) return false;
-        
+
         const decryptedJson = await decrypt(obfuscatedData, hash);
         const data = JSON.parse(decryptedJson);
 

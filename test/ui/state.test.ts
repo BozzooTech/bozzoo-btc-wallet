@@ -1,5 +1,5 @@
 /**
- * Bozzoo BTC Wallet — UI State Module Tests
+ * Bozzoo BTC Wallet - UI State Module Tests
  */
 
 import {

@@ -1,5 +1,5 @@
 /**
- * Bozzoo BTC Wallet — Network Module Tests
+ * Bozzoo BTC Wallet - Network Module Tests
  *
  * Tests for formatting utilities and API functions with mocked fetch.
  */
@@ -114,7 +114,7 @@ describe('engine/network', () => {
 
   describe('formatDate()', () => {
     it('should format a unix timestamp to a date string', () => {
-      // Jan 3, 2009 — Bitcoin genesis block
+      // Jan 3, 2009 - Bitcoin genesis block
       const result = formatDate(1231006505);
       expect(result).toContain('2009');
       expect(result).toContain('Jan');

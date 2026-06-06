@@ -274,7 +274,7 @@ export default function Send() {
 
       {isDonationMode && (
         <div style={{ margin: '0 16px 8px', padding: '10px 14px', background: 'rgba(247,148,26,0.1)', border: '1px solid rgba(247,148,26,0.35)', borderRadius: '8px', fontSize: '12px', color: 'var(--orange)', textAlign: 'center' }}>
-          Donating to Bozzoo developer — thank you for your support!
+          Donating to Bozzoo developer - thank you for your support!
         </div>
       )}
 
@@ -404,7 +404,7 @@ export default function Send() {
               <span style={{ fontSize: '18px' }}>&#x2764;</span>
               <div>
                 <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-primary)' }}>Donate</div>
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>Help add features & improve security — completely optional</div>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>Help add features & improve security - completely optional</div>
               </div>
               <div style={{ marginLeft: 'auto' }}>
                 <input type="checkbox" checked={donationEnabled} onChange={e => {

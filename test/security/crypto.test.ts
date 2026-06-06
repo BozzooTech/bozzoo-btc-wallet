@@ -1,5 +1,5 @@
 /**
- * Bozzoo BTC Wallet — Security Crypto Module Tests
+ * Bozzoo BTC Wallet - Security Crypto Module Tests
  *
  * Tests for AES-256-GCM encryption/decryption, password validation,
  * and secure token generation.

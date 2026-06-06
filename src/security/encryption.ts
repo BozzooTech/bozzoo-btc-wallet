@@ -1,5 +1,5 @@
 /**
- * Bozzoo BTC Wallet — AES-256-GCM Encryption Module (TypeScript)
+ * Bozzoo BTC Wallet - AES-256-GCM Encryption Module (TypeScript)
  *
  * Uses the browser's native Web Crypto API exclusively.
  * Zero external cryptography dependencies.
@@ -17,9 +17,9 @@
 //  Constants 
 
 const PBKDF2_ITERATIONS: number = 310_000;
-const SALT_BYTE_LENGTH:  number = 32;   // 256-bit salt
-const IV_BYTE_LENGTH:    number = 12;   // 96-bit IV (GCM recommended)
-const AES_KEY_BITS:      number = 256;  // AES-256
+const SALT_BYTE_LENGTH: number = 32;   // 256-bit salt
+const IV_BYTE_LENGTH: number = 12;   // 96-bit IV (GCM recommended)
+const AES_KEY_BITS: number = 256;  // AES-256
 
 //  Type Definitions 
 
@@ -37,8 +37,8 @@ export class CryptoError extends Error {
 
   constructor(code: string, message: string) {
     super(message);
-    this.name  = 'CryptoError';
-    this.code  = code;
+    this.name = 'CryptoError';
+    this.code = code;
     Object.setPrototypeOf(this, CryptoError.prototype);
   }
 }
@@ -72,10 +72,10 @@ async function deriveKey(
 
   return crypto.subtle.deriveKey(
     {
-      name:       'PBKDF2',
-      salt:       salt as BufferSource,
+      name: 'PBKDF2',
+      salt: salt as BufferSource,
       iterations: PBKDF2_ITERATIONS,
-      hash:       'SHA-256',
+      hash: 'SHA-256',
     },
     baseKey,
     { name: 'AES-GCM', length: AES_KEY_BITS },
@@ -122,20 +122,20 @@ function fromBase64(b64: string): Uint8Array {
  * @param password  - User's wallet password
  * @returns         EncryptedBlob with base64-encoded ciphertext and timestamp
  *
- * @throws {CryptoError} EMPTY_PASSWORD  — if password is empty
- * @throws {CryptoError} ENCRYPT_FAILED  — if the Web Crypto API call fails
+ * @throws {CryptoError} EMPTY_PASSWORD  - if password is empty
+ * @throws {CryptoError} ENCRYPT_FAILED  - if the Web Crypto API call fails
  */
 export async function encrypt(
   plaintext: string,
-  password:  string
+  password: string
 ): Promise<EncryptedBlob> {
   if (!plaintext) {
     throw new CryptoError('EMPTY_PLAINTEXT', 'Plaintext must not be empty.');
   }
 
   const encoder = new TextEncoder();
-  const salt    = crypto.getRandomValues(new Uint8Array(SALT_BYTE_LENGTH));
-  const iv      = crypto.getRandomValues(new Uint8Array(IV_BYTE_LENGTH));
+  const salt = crypto.getRandomValues(new Uint8Array(SALT_BYTE_LENGTH));
+  const iv = crypto.getRandomValues(new Uint8Array(IV_BYTE_LENGTH));
 
   let cipherBuffer: ArrayBuffer;
 
@@ -156,15 +156,15 @@ export async function encrypt(
 
   // Combine: salt || iv || ciphertext
   const cipherBytes = new Uint8Array(cipherBuffer);
-  const combined    = new Uint8Array(
+  const combined = new Uint8Array(
     SALT_BYTE_LENGTH + IV_BYTE_LENGTH + cipherBytes.byteLength
   );
-  combined.set(salt,        0);
-  combined.set(iv,          SALT_BYTE_LENGTH);
+  combined.set(salt, 0);
+  combined.set(iv, SALT_BYTE_LENGTH);
   combined.set(cipherBytes, SALT_BYTE_LENGTH + IV_BYTE_LENGTH);
 
   return {
-    data:        toBase64(combined),
+    data: toBase64(combined),
     encryptedAt: new Date().toISOString(),
   };
 }
@@ -176,11 +176,11 @@ export async function encrypt(
  * @param password - User's wallet password
  * @returns          Decrypted plaintext string
  *
- * @throws {CryptoError} INVALID_BLOB      — if the blob is malformed
- * @throws {CryptoError} WRONG_PASSWORD    — if decryption fails (wrong password or tampered data)
+ * @throws {CryptoError} INVALID_BLOB      - if the blob is malformed
+ * @throws {CryptoError} WRONG_PASSWORD    - if decryption fails (wrong password or tampered data)
  */
 export async function decrypt(
-  blob:     EncryptedBlob | string,
+  blob: EncryptedBlob | string,
   password: string
 ): Promise<string> {
   const b64Data = typeof blob === 'string' ? blob : blob.data;
@@ -200,12 +200,12 @@ export async function decrypt(
     );
   }
 
-  const salt       = combined.slice(0, SALT_BYTE_LENGTH);
-  const iv         = combined.slice(SALT_BYTE_LENGTH, SALT_BYTE_LENGTH + IV_BYTE_LENGTH);
+  const salt = combined.slice(0, SALT_BYTE_LENGTH);
+  const iv = combined.slice(SALT_BYTE_LENGTH, SALT_BYTE_LENGTH + IV_BYTE_LENGTH);
   const ciphertext = combined.slice(SALT_BYTE_LENGTH + IV_BYTE_LENGTH);
 
   try {
-    const key         = await deriveKey(password, salt);
+    const key = await deriveKey(password, salt);
     const plainBuffer = await crypto.subtle.decrypt(
       { name: 'AES-GCM', iv },
       key,
@@ -225,13 +225,13 @@ export async function decrypt(
 /**
  * Verifies a password by attempting decryption.
  * Returns true if the password is correct, false otherwise.
- * Never throws — safe to use in UI validation loops.
+ * Never throws - safe to use in UI validation loops.
  *
  * @param blob     - The EncryptedBlob to verify against
  * @param password - Password to test
  */
 export async function verifyPassword(
-  blob:     EncryptedBlob | string,
+  blob: EncryptedBlob | string,
   password: string
 ): Promise<boolean> {
   try {
@@ -256,16 +256,16 @@ export async function verifyPassword(
  * @returns Object with `valid` flag and `errors` array
  */
 export function validatePasswordStrength(password: string): {
-  valid:  boolean;
-  score:  number;     // 0-4 (0=weak, 4=strong)
+  valid: boolean;
+  score: number;     // 0-4 (0=weak, 4=strong)
   errors: string[];
 } {
   const errors: string[] = [];
 
-  if (password.length < 8)      errors.push('At least 8 characters required.');
-  if (!/[A-Z]/.test(password))  errors.push('At least one uppercase letter required.');
-  if (!/[a-z]/.test(password))  errors.push('At least one lowercase letter required.');
-  if (!/[0-9]/.test(password))  errors.push('At least one digit required.');
+  if (password.length < 8) errors.push('At least 8 characters required.');
+  if (!/[A-Z]/.test(password)) errors.push('At least one uppercase letter required.');
+  if (!/[a-z]/.test(password)) errors.push('At least one lowercase letter required.');
+  if (!/[0-9]/.test(password)) errors.push('At least one digit required.');
   if (!/[^A-Za-z0-9]/.test(password)) errors.push('At least one special character required.');
 
   const score = Math.max(0, 4 - errors.length);

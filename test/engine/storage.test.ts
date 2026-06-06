@@ -1,5 +1,5 @@
 /**
- * Bozzoo BTC Wallet — Storage Module Tests
+ * Bozzoo BTC Wallet - Storage Module Tests
  *
  * Tests for the chrome.storage.local wrapper including
  * CRUD operations, wallet config, and key management.

@@ -1,5 +1,5 @@
 /**
- * Bozzoo BTC Wallet — Transaction Module Tests
+ * Bozzoo BTC Wallet - Transaction Module Tests
  *
  * Tests for developer fee calculation, address validation,
  * and transaction builder edge cases.

@@ -1,5 +1,5 @@
 /**
- * Bozzoo BTC Wallet — Test Setup
+ * Bozzoo BTC Wallet - Test Setup
  *
  * Mocks for browser extension APIs (chrome.storage, chrome.runtime, chrome.alarms)
  * and Web Crypto API so tests can run in Node.js.

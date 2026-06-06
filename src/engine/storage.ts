@@ -1,5 +1,5 @@
 /**
- * Bozzoo BTC Wallet — Storage Layer (TypeScript)
+ * Bozzoo BTC Wallet - Storage Layer (TypeScript)
  *
  * Type-safe async/await wrapper over chrome.storage.local.
  * Cross-browser compatible: works with both chrome.storage and browser.storage (Firefox/Tor).

@@ -7,7 +7,7 @@
 
 A **privacy-focused, open-source, non-custodial HD Bitcoin wallet** built specifically as a secure browser extension.
 
-Built entirely in **TypeScript** using battle-tested, audited Bitcoin libraries (`bitcoinjs-lib`, `bip39`, `@bitcoinerlab/secp256k1`). All encryption, key derivation, and transaction signing happens entirely locally — your keys and seed phrases absolutely never leave your device.
+Built entirely in **TypeScript** using battle-tested, audited Bitcoin libraries (`bitcoinjs-lib`, `bip39`, `@bitcoinerlab/secp256k1`). All encryption, key derivation, and transaction signing happens entirely locally - your keys and seed phrases absolutely never leave your device.
 
 Compatible with **Chrome, Brave, Edge, Firefox, and Tor Browser**.
 
@@ -31,17 +31,17 @@ There are many Bitcoin web wallets available, but Bozzoo was built from the grou
 
 ##  Complete Feature List
 
-- **Non-Custodial** — You hold the keys. No servers, no accounts, no KYC.
-- **4 Address Types Supported** — Legacy (P2PKH), Nested SegWit (P2SH), Native SegWit (P2WPKH), Taproot (P2TR).
-- **HD Wallet Architecture** — Utilizes BIP-39/44/49/84/86 standard derivation paths for infinite address generation.
-- **Multi-Send (Transaction Batching)** — Add multiple recipients visually and send one single transaction.
-- **Advanced Coin Control** — View your UTXOs and manually select which ones to include in your transaction to preserve privacy.
-- **Dynamic Fee Estimation** — Real-time rates from the live mempool, ensuring competitive inclusion times.
-- **AES-256-GCM Encryption** — Your seed phrase is heavily encrypted before it ever touches your local storage.
-- **PBKDF2 Password Hashing** — 100,000 iterations with a random salt to protect against brute-force attacks.
-- **Auto-Lock Security** — Automatically locks the wallet after 10 minutes of inactivity.
-- **Strict Derivation Bounds** — Safely enforces standard BIP32 maximum derivation limits (up to 2,147,483,647) preventing path overflow and invalid key generation.
-- **Voluntary Donation System** — A completely optional, transparent toggle to support development without hidden fees.
+- **Non-Custodial** - You hold the keys. No servers, no accounts, no KYC.
+- **4 Address Types Supported** - Legacy (P2PKH), Nested SegWit (P2SH), Native SegWit (P2WPKH), Taproot (P2TR).
+- **HD Wallet Architecture** - Utilizes BIP-39/44/49/84/86 standard derivation paths for infinite address generation.
+- **Multi-Send (Transaction Batching)** - Add multiple recipients visually and send one single transaction.
+- **Advanced Coin Control** - View your UTXOs and manually select which ones to include in your transaction to preserve privacy.
+- **Dynamic Fee Estimation** - Real-time rates from the live mempool, ensuring competitive inclusion times.
+- **AES-256-GCM Encryption** - Your seed phrase is heavily encrypted before it ever touches your local storage.
+- **PBKDF2 Password Hashing** - 100,000 iterations with a random salt to protect against brute-force attacks.
+- **Auto-Lock Security** - Automatically locks the wallet after 10 minutes of inactivity.
+- **Strict Derivation Bounds** - Safely enforces standard BIP32 maximum derivation limits (up to 2,147,483,647) preventing path overflow and invalid key generation.
+- **Voluntary Donation System** - A completely optional, transparent toggle to support development without hidden fees.
 
 ---
 
@@ -220,4 +220,4 @@ For support or security disclosures, reach out securely:
 
 ## 📄 License
 
-MIT — see [LICENSE](LICENSE) for details.
+MIT - see [LICENSE](LICENSE) for details.

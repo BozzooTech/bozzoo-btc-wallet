@@ -1,5 +1,5 @@
 /**
- * Bozzoo BTC Wallet — Transaction Builder (TypeScript)
+ * Bozzoo BTC Wallet - Transaction Builder (TypeScript)
  *
  * Builds, signs, and broadcasts Bitcoin PSBTs for all 4 address types.
  *
@@ -31,7 +31,7 @@ import type {
 const ECPair = ECPairFactory(ecc);
 const NETWORK = bitcoin.networks.bitcoin;
 
-// Developer donation address — used by the UI donation box (voluntary)
+// Developer donation address - used by the UI donation box (voluntary)
 export const DONATION_ADDRESS = "bc1quh3kk0499s9vngls6sfghuhrn52j9l0pvn8f3k";
 
 //  Transaction Size Estimates (vbytes)

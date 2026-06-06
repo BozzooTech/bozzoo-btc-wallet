@@ -2,57 +2,55 @@ import React, { useContext, useState } from 'react';
 import { AppContext } from '../App';
 
 const features = [
-  { icon: '🔐', title: 'Zero Knowledge', desc: 'Keys encrypted with AES-256-GCM. Your password never stored anywhere.' },
-  { icon: '🌐', title: '4 Address Types', desc: 'Legacy (P2PKH), Nested SegWit, Native SegWit & Taproot in one wallet.' },
-  { icon: '📤', title: 'Multi-Send', desc: 'Send to 20 recipients in one transaction — save up to 80% on fees.' },
-  { icon: '🪙', title: 'Coin Control', desc: 'Manually pick which UTXOs to spend for maximum privacy.' },
-  { icon: '⏱️', title: 'Auto-Lock', desc: 'Wallet locks automatically after 10 minutes of inactivity.' },
-  { icon: '🔓', title: 'Open Source', desc: 'Every line of code is public and auditable on GitHub.' },
+  { title: 'Non-Custodial', desc: 'You hold the keys. No servers, no accounts, no KYC.' },
+  { title: '4 Address Types Supported', desc: 'Legacy (P2PKH), Nested SegWit (P2SH), Native SegWit (P2WPKH), Taproot (P2TR).' },
+  { title: 'HD Wallet Architecture', desc: 'Utilizes BIP-39/44/49/84/86 standard derivation paths for infinite address generation.' },
+  { title: 'Multi-Send (Transaction Batching)', desc: 'Add multiple recipients visually and send one single transaction.' },
+  { title: 'Advanced Coin Control', desc: 'View your UTXOs and manually select which ones to include in your transaction to preserve privacy.' },
+  { title: 'Dynamic Fee Estimation', desc: 'Real-time rates from the live mempool, ensuring competitive inclusion times.' },
+  { title: 'AES-256-GCM Encryption', desc: 'Your seed phrase is heavily encrypted before it ever touches your local storage.' },
+  { title: 'PBKDF2 Password Hashing', desc: '100,000 iterations with a random salt to protect against brute-force attacks.' },
+  { title: 'Auto-Lock Security', desc: 'Automatically locks the wallet after 10 minutes of inactivity.' },
+  { title: 'Strict Derivation Bounds', desc: 'Safely enforces standard BIP32 maximum derivation limits preventing path overflow and invalid key generation.' },
+  { title: 'Voluntary Donation System', desc: 'A completely optional, transparent toggle to support development without hidden fees.' },
 ];
 
 const comparisons = [
   {
-    feature: 'Open Source',
-    bozzoo: true,
-    metamask: true,
-    exodus: false,
-    phantom: false,
+    feature: 'Multi-Send (Batching)',
+    bozzoo: 'Send to up to 20 addresses in a single transaction, cutting network fees by up to 60%.',
+    bozzooIcon: 'check',
+    others: 'Usually restricted to 1 transaction per recipient.',
+    othersIcon: 'cross'
   },
   {
-    feature: 'Bitcoin-Only (no bloat)',
-    bozzoo: true,
-    metamask: false,
-    exodus: false,
-    phantom: false,
+    feature: 'Advanced Coin Control',
+    bozzoo: 'Full manual UTXO selection for ultimate privacy. You choose exactly which coins to spend.',
+    bozzooIcon: 'check',
+    others: 'Rarely supported, or hidden behind complex "pro" menus.',
+    othersIcon: 'warning'
   },
   {
-    feature: 'Multi-Send (batch tx)',
-    bozzoo: true,
-    metamask: false,
-    exodus: false,
-    phantom: false,
+    feature: 'Real-time Dynamic Fees',
+    bozzoo: 'Uses pure live data from a native fallback network without artificially inflating numbers.',
+    bozzooIcon: 'check',
+    others: 'Frequently use delayed or static node RPC fee estimates and artificially bump ranges.',
+    othersIcon: 'warning'
   },
   {
-    feature: 'Manual Coin Control',
-    bozzoo: true,
-    metamask: false,
-    exodus: false,
-    phantom: false,
+    feature: '100% Free & Transparent',
+    bozzoo: 'Zero hidden routing fees. We use a strictly voluntary donation model.',
+    bozzooIcon: 'check',
+    others: 'Often inject hidden swap fees or flat platform taxes.',
+    othersIcon: 'cross'
   },
   {
-    feature: 'Taproot Support',
-    bozzoo: true,
-    metamask: false,
-    exodus: true,
-    phantom: false,
-  },
-  {
-    feature: 'No Tracking / Analytics',
-    bozzoo: true,
-    metamask: false,
-    exodus: false,
-    phantom: false,
-  },
+    feature: 'Complete Address Support',
+    bozzoo: 'Seamlessly toggle between Legacy, Nested SegWit, Native SegWit, and Taproot.',
+    bozzooIcon: 'check',
+    others: 'Usually locked into Native SegWit or Taproot only.',
+    othersIcon: 'warning'
+  }
 ];
 
 const steps = [
@@ -69,11 +67,12 @@ export default function Welcome() {
   const [agreed, setAgreed] = useState(false);
   const [tab, setTab] = useState<Tab>('features');
 
-  const Check = ({ ok }: { ok: boolean }) => (
-    <span style={{ color: ok ? 'var(--green, #4caf50)' : 'var(--text-muted)', fontWeight: 700, fontSize: '14px' }}>
-      {ok ? '✓' : '✗'}
-    </span>
-  );
+  const getIcon = (type: string) => {
+    if (type === 'check') return <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--green, #4caf50)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>;
+    if (type === 'cross') return <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--red, #f44336)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
+    if (type === 'warning') return <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--orange, #ff9800)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>;
+    return null;
+  };
 
   return (
     <div style={{
@@ -84,7 +83,7 @@ export default function Welcome() {
       overflow: 'hidden',
     }}>
 
-      {/* Header — Logo */}
+      {/* Header - Logo */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -95,13 +94,13 @@ export default function Welcome() {
         <img src="assets/icon.png" alt="Bozzoo" style={{ width: '40px', height: '40px', filter: 'drop-shadow(0 2px 10px rgba(247,148,26,0.5))' }} />
         <div>
           <div style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.3px', color: 'var(--text-primary)', lineHeight: 1.1 }}>Bozzoo Wallet</div>
-          <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Bitcoin — Your keys, your coins</div>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Bitcoin - Your keys, your coins</div>
         </div>
       </div>
 
       {/* Tab bar */}
       <div style={{ display: 'flex', padding: '0 16px', gap: '4px', flexShrink: 0 }}>
-        {([['features', '✨ Features'], ['how', '⚙️ How It Works'], ['compare', '📊 vs Others']] as [Tab, string][]).map(([t, label]) => (
+        {([['features', 'Features'], ['how', 'How It Works'], ['compare', 'vs Others']] as [Tab, string][]).map(([t, label]) => (
           <button key={t} onClick={() => setTab(t)} style={{
             flex: 1,
             padding: '6px 4px',
@@ -127,18 +126,15 @@ export default function Welcome() {
             {features.map(f => (
               <div key={f.title} style={{
                 display: 'flex',
-                alignItems: 'flex-start',
-                gap: '10px',
+                flexDirection: 'column',
+                gap: '2px',
                 padding: '10px 12px',
                 background: 'var(--bg-surface)',
                 borderRadius: '8px',
                 border: '1px solid var(--border)',
               }}>
-                <span style={{ fontSize: '18px', flexShrink: 0, lineHeight: 1.3 }}>{f.icon}</span>
-                <div>
-                  <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '2px' }}>{f.title}</div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: '1.4' }}>{f.desc}</div>
-                </div>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)' }}>{f.title}</div>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: '1.4' }}>{f.desc}</div>
               </div>
             ))}
           </div>
@@ -185,49 +181,32 @@ export default function Welcome() {
         )}
 
         {tab === 'compare' && (
-          <div>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '10px', textAlign: 'center' }}>
-              vs MetaMask · Exodus · Phantom
-            </div>
-            <div style={{
-              borderRadius: '8px',
-              border: '1px solid var(--border)',
-              overflow: 'hidden',
-              fontSize: '11px',
-            }}>
-              {/* Header */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 52px 52px 52px 52px', background: 'var(--bg-surface)', padding: '8px 10px', fontWeight: 700, color: 'var(--text-secondary)', borderBottom: '1px solid var(--border)' }}>
-                <span>Feature</span>
-                <span style={{ textAlign: 'center', color: 'var(--orange)' }}>Us</span>
-                <span style={{ textAlign: 'center' }}>MM</span>
-                <span style={{ textAlign: 'center' }}>Exd</span>
-                <span style={{ textAlign: 'center' }}>Pht</span>
-              </div>
-              {comparisons.map((row, i) => (
-                <div key={row.feature} style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 52px 52px 52px 52px',
-                  padding: '8px 10px',
-                  background: i % 2 === 0 ? 'transparent' : 'var(--bg-surface)',
-                  borderBottom: i < comparisons.length - 1 ? '1px solid var(--border-subtle)' : 'none',
-                  alignItems: 'center',
-                }}>
-                  <span style={{ color: 'var(--text-secondary)', lineHeight: '1.3' }}>{row.feature}</span>
-                  <span style={{ textAlign: 'center' }}><Check ok={row.bozzoo} /></span>
-                  <span style={{ textAlign: 'center' }}><Check ok={row.metamask} /></span>
-                  <span style={{ textAlign: 'center' }}><Check ok={row.exodus} /></span>
-                  <span style={{ textAlign: 'center' }}><Check ok={row.phantom} /></span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {comparisons.map((row) => (
+              <div key={row.feature} style={{
+                padding: '10px 12px',
+                background: 'var(--bg-surface)',
+                borderRadius: '8px',
+                border: '1px solid var(--border)',
+              }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>{row.feature}</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ fontSize: '11px', display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
+                    <span style={{ flexShrink: 0, marginTop: '2px' }}>{getIcon(row.bozzooIcon)}</span>
+                    <span style={{ color: 'var(--text-primary)', lineHeight: '1.4' }}><strong>Us:</strong> {row.bozzoo}</span>
+                  </div>
+                  <div style={{ fontSize: '11px', display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
+                    <span style={{ flexShrink: 0, marginTop: '2px' }}>{getIcon(row.othersIcon)}</span>
+                    <span style={{ color: 'var(--text-muted)', lineHeight: '1.4' }}><strong>Others:</strong> {row.others}</span>
+                  </div>
                 </div>
-              ))}
-            </div>
-            <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '8px', textAlign: 'center' }}>
-              MM = MetaMask · Exd = Exodus · Pht = Phantom
-            </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
 
-      {/* Bottom — fixed */}
+      {/* Bottom - fixed */}
       <div style={{ padding: '8px 16px 20px', flexShrink: 0, borderTop: '1px solid var(--border-subtle)', background: 'var(--bg-base)' }}>
         <label style={{
           display: 'flex',
@@ -246,7 +225,7 @@ export default function Welcome() {
             onChange={e => setAgreed(e.target.checked)}
             style={{ marginTop: '2px', accentColor: 'var(--orange)', flexShrink: 0 }}
           />
-          I understand this is a self-custody wallet — if I lose my seed phrase, my funds cannot be recovered.
+          <span>I understand this is a self-custody wallet - if I lose my seed phrase, my funds cannot be recovered. <strong>We are not responsible for any data loss. We are unable to recover your wallets. Please secure your wallet seed phrases.</strong></span>
         </label>
 
         <div style={{ display: 'flex', gap: '8px' }}>

@@ -1,5 +1,5 @@
 /**
- * Bozzoo BTC Wallet — Network / API Layer (TypeScript)
+ * Bozzoo BTC Wallet - Network / API Layer (TypeScript)
  *
  * Primary:  blockchain.info (Official Blockchain API)
  * Fallback: mempool.space  (self-hostable, privacy-preserving)

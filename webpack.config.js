@@ -40,7 +40,7 @@ module.exports = {
   //  Loaders 
   module: {
     rules: [
-      // TypeScript — all .ts files (engine, security, background, ui)
+      // TypeScript - all .ts files (engine, security, background, ui)
       {
         test: /\.tsx?$/,
         exclude: /node_modules/,
@@ -52,7 +52,7 @@ module.exports = {
           },
         },
       },
-      // CSS — extracted to separate file, not inlined
+      // CSS - extracted to separate file, not inlined
       {
         test: /\.css$/,
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
@@ -92,7 +92,7 @@ module.exports = {
 
   //  Optimization 
   optimization: {
-    // No code splitting — extensions require a single bundle per entry
+    // No code splitting - extensions require a single bundle per entry
     splitChunks: false,
     // Do NOT minify Firefox builds to prevent automated "Deceptive" flags
     minimize: !isFirefox,

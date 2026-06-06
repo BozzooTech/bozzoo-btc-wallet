@@ -1,5 +1,5 @@
 /**
- * Bozzoo BTC Wallet — Wallet Engine Tests
+ * Bozzoo BTC Wallet - Wallet Engine Tests
  *
  * Tests for HD wallet derivation, mnemonic generation/validation,
  * address derivation across all 4 address types, and wallet CRUD.
