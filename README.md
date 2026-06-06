@@ -40,6 +40,7 @@ There are many Bitcoin web wallets available, but Bozzoo was built from the grou
 - **AES-256-GCM Encryption** — Your seed phrase is heavily encrypted before it ever touches your local storage.
 - **PBKDF2 Password Hashing** — 100,000 iterations with a random salt to protect against brute-force attacks.
 - **Auto-Lock Security** — Automatically locks the wallet after 10 minutes of inactivity.
+- **Strict Derivation Bounds** — Safely enforces standard BIP32 maximum derivation limits (up to 2,147,483,647) preventing path overflow and invalid key generation.
 - **Voluntary Donation System** — A completely optional, transparent toggle to support development without hidden fees.
 
 ---
@@ -48,7 +49,7 @@ There are many Bitcoin web wallets available, but Bozzoo was built from the grou
 
 | Component | Implementation |
 |---|---|
-| **Seed Phrase Storage** | AES-256-GCM encrypted, stored strictly in `chrome.storage.local`. |
+| **Seed Phrase Storage** | AES-256-GCM encrypted, stored strictly in `browser.storage.local`. |
 | **Password** | Never stored anywhere. Derived on the fly via PBKDF2-SHA256 (100k iterations). |
 | **Private Keys** | Never stored. Derived purely on-demand at signing, and wiped from memory immediately. |
 | **Session State** | Completely cleared from memory upon lock or browser close. |
@@ -163,9 +164,9 @@ npm run type-check
 
 The wallet includes an **optional, transparent** donation checkbox on the send screen to support ongoing open-source development.
 
-- **Opt-in only** — OFF by default.
-- **Calculated Minimums** — Automatically calculates a minimum $0.30 equivalent to prevent network dust rejections.
-- **Transparent** — The exact donation amount in BTC and USD is displayed clearly in the transaction breakdown before broadcasting.
+- **Opt-in only** - OFF by default.
+- **Calculated Minimums** - Automatically calculates a minimum $0.30 equivalent to prevent network dust rejections.
+- **Transparent** - The exact donation amount in BTC and USD is displayed clearly in the transaction breakdown before broadcasting.
 
 ### Support the Developer
 If you love this wallet and want to support its ongoing development directly, you can send Bitcoin to our native SegWit donation address:

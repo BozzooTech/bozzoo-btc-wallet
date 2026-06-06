@@ -9,7 +9,7 @@
  *           only when a transaction needs to be signed.
  */
 
-import * as bip39          from 'bip39';
+import * as bip39 from 'bip39';
 import { encrypt, decrypt } from '../security/encryption';
 import { saveEncryptedSeed, getEncryptedSeed, storageRemove, savePasswordHash, getPasswordHash, updateLastActive, storageClear } from './storage';
 import { pbkdf2Async } from '@noble/hashes/pbkdf2';
@@ -88,10 +88,10 @@ export async function clearWallet() {
   await storageClear();
 }
 
-import * as bitcoin         from 'bitcoinjs-lib';
-import { BIP32Factory }     from 'bip32';
-import * as ecc             from '@bitcoinerlab/secp256k1';
-import { ECPairFactory }    from 'ecpair';
+import * as bitcoin from 'bitcoinjs-lib';
+import { BIP32Factory } from 'bip32';
+import * as ecc from '@bitcoinerlab/secp256k1';
+import { ECPairFactory } from 'ecpair';
 import type { BIP32Interface } from 'bip32';
 import type { ECPairInterface } from 'ecpair';
 import type { AddressType, AddressInfo } from '../types/index';
@@ -99,7 +99,7 @@ import type { AddressType, AddressInfo } from '../types/index';
 //  Library Initialization 
 
 bitcoin.initEccLib(ecc);
-const bip32  = BIP32Factory(ecc);
+const bip32 = BIP32Factory(ecc);
 const ECPair = ECPairFactory(ecc);
 
 // Bitcoin mainnet network params
@@ -108,41 +108,43 @@ const NETWORK: bitcoin.Network = bitcoin.networks.bitcoin;
 //  Address Type Constants 
 
 export const ADDRESS_TYPES: Record<string, AddressType> = {
-  LEGACY:        'legacy',
+  LEGACY: 'legacy',
   NESTED_SEGWIT: 'nested_segwit',
   NATIVE_SEGWIT: 'native_segwit',
-  TAPROOT:       'taproot',
+  TAPROOT: 'taproot',
 } as const;
 
 export const ADDRESS_TYPE_LABELS: Record<AddressType, string> = {
-  legacy:        'Legacy (P2PKH)',
+  legacy: 'Legacy (P2PKH)',
   nested_segwit: 'Nested SegWit (P2SH)',
   native_segwit: 'Native SegWit (P2WPKH)',
-  taproot:       'Taproot (P2TR)',
+  taproot: 'Taproot (P2TR)',
 };
 
 export const ADDRESS_TYPE_PREFIXES: Record<AddressType, string> = {
-  legacy:        '1',
+  legacy: '1',
   nested_segwit: '3',
   native_segwit: 'bc1q',
-  taproot:       'bc1p',
+  taproot: 'bc1p',
 };
 
 export const ADDRESS_TYPE_ICONS: Record<AddressType, string> = {
-  legacy:        '₿',
+  legacy: '₿',
   nested_segwit: '⚡',
   native_segwit: '🔷',
-  taproot:       '🍃',
+  taproot: '🍃',
 };
 
 //  BIP Derivation Paths 
 
 const DERIVATION_PURPOSE: Record<AddressType, string> = {
-  legacy:        "m/44'/0'",
+  legacy: "m/44'/0'",
   nested_segwit: "m/49'/0'",
   native_segwit: "m/84'/0'",
-  taproot:       "m/86'/0'",
+  taproot: "m/86'/0'",
 };
+
+export const MAX_BIP32_INDEX = 2147483647; // 2^31 - 1
 
 //  Internal Helpers 
 
@@ -151,7 +153,7 @@ const DERIVATION_PURPOSE: Record<AddressType, string> = {
  * @internal
  */
 async function getRootNode(
-  mnemonic:   string,
+  mnemonic: string,
   passphrase: string = ''
 ): Promise<BIP32Interface> {
   const seed = await bip39.mnemonicToSeed(mnemonic.trim(), passphrase);
@@ -171,11 +173,14 @@ export function toXOnly(pubkey: Buffer): Buffer {
  * e.g., m/84'/0'/0'
  */
 export async function deriveAccountXpub(
-  mnemonic:     string,
-  addressType:  AddressType,
+  mnemonic: string,
+  addressType: AddressType,
   accountIndex: number = 0
 ): Promise<string> {
-  const root     = await getRootNode(mnemonic);
+  if (!Number.isInteger(accountIndex) || accountIndex < 0 || accountIndex > MAX_BIP32_INDEX) {
+    throw new Error(`Invalid account index. Must be between 0 and ${MAX_BIP32_INDEX}`);
+  }
+  const root = await getRootNode(mnemonic);
   const basePath = DERIVATION_PURPOSE[addressType];
   const fullPath = `${basePath}/${accountIndex}'`;
   const accountNode = root.derivePath(fullPath);
@@ -209,21 +214,27 @@ export function validateMnemonic(mnemonic: string): boolean {
  * @param isChange     - True for BIP-32 internal (change) chain
  */
 export async function deriveAddress(
-  xpub:         string,
-  addressType:  AddressType,
+  xpub: string,
+  addressType: AddressType,
   addressIndex: number = 0,
   accountIndex: number = 0,
-  isChange:     boolean = false
+  isChange: boolean = false
 ): Promise<AddressInfo> {
+  if (!Number.isInteger(addressIndex) || addressIndex < 0 || addressIndex > MAX_BIP32_INDEX) {
+    throw new Error(`Invalid address index. Must be between 0 and ${MAX_BIP32_INDEX}`);
+  }
+  if (!Number.isInteger(accountIndex) || accountIndex < 0 || accountIndex > MAX_BIP32_INDEX) {
+    throw new Error(`Invalid account index. Must be between 0 and ${MAX_BIP32_INDEX}`);
+  }
   const accountNode = bip32.fromBase58(xpub, NETWORK);
   const changeIndex = isChange ? 1 : 0;
-  
+
   // The accountNode is already at m/purpose'/coin_type'/accountIndex'
   // So we just derive changeIndex/addressIndex
   const child = accountNode.derive(changeIndex).derive(addressIndex);
 
-  const basePath    = DERIVATION_PURPOSE[addressType];
-  const fullPath    = `${basePath}/${accountIndex}'/${changeIndex}/${addressIndex}`;
+  const basePath = DERIVATION_PURPOSE[addressType];
+  const fullPath = `${basePath}/${accountIndex}'/${changeIndex}/${addressIndex}`;
 
   let address: string;
 
@@ -263,7 +274,7 @@ export async function deriveAddress(
       const internalKey = toXOnly(child.publicKey);
       const p2tr = bitcoin.payments.p2tr({
         internalPubkey: internalKey,
-        network:        NETWORK,
+        network: NETWORK,
       });
       if (!p2tr.address) throw new Error('Failed to derive Taproot address.');
       address = p2tr.address;
@@ -279,9 +290,9 @@ export async function deriveAddress(
   return {
     address,
     publicKey: child.publicKey,
-    path:      fullPath,
-    index:     addressIndex,
-    type:      addressType,
+    path: fullPath,
+    index: addressIndex,
+    type: addressType,
   };
 }
 
@@ -296,17 +307,23 @@ export async function deriveAddress(
  * @param isChange    - Whether this is a change address
  */
 export async function deriveKeyPair(
-  mnemonic:     string,
-  addressType:  AddressType,
+  mnemonic: string,
+  addressType: AddressType,
   addressIndex: number = 0,
   accountIndex: number = 0,
-  isChange:     boolean = false
+  isChange: boolean = false
 ): Promise<ECPairInterface> {
-  const root        = await getRootNode(mnemonic);
-  const basePath    = DERIVATION_PURPOSE[addressType];
+  if (!Number.isInteger(addressIndex) || addressIndex < 0 || addressIndex > MAX_BIP32_INDEX) {
+    throw new Error(`Invalid address index. Must be between 0 and ${MAX_BIP32_INDEX}`);
+  }
+  if (!Number.isInteger(accountIndex) || accountIndex < 0 || accountIndex > MAX_BIP32_INDEX) {
+    throw new Error(`Invalid account index. Must be between 0 and ${MAX_BIP32_INDEX}`);
+  }
+  const root = await getRootNode(mnemonic);
+  const basePath = DERIVATION_PURPOSE[addressType];
   const changeIndex = isChange ? 1 : 0;
-  const fullPath    = `${basePath}/${accountIndex}'/${changeIndex}/${addressIndex}`;
-  const child       = root.derivePath(fullPath);
+  const fullPath = `${basePath}/${accountIndex}'/${changeIndex}/${addressIndex}`;
+  const child = root.derivePath(fullPath);
 
   if (!child.privateKey) {
     throw new Error('BIP-32 child node has no private key (watch-only path?).');
@@ -321,7 +338,7 @@ export async function deriveKeyPair(
  */
 export function getPayment(
   addressType: AddressType,
-  publicKey:   Buffer
+  publicKey: Buffer
 ): bitcoin.payments.Payment {
   const pubkey = Buffer.isBuffer(publicKey) ? publicKey : Buffer.from(publicKey);
 
@@ -340,7 +357,7 @@ export function getPayment(
     case 'taproot':
       return bitcoin.payments.p2tr({
         internalPubkey: toXOnly(pubkey),
-        network:        NETWORK,
+        network: NETWORK,
       });
 
     default: {
@@ -355,12 +372,18 @@ export function getPayment(
  * Used to populate receive address lists and scan for balance.
  */
 export async function generateAddressRange(
-  xpub:         string,
-  addressType:  AddressType,
-  count:        number = 5,
-  startIndex:   number = 0,
+  xpub: string,
+  addressType: AddressType,
+  count: number = 5,
+  startIndex: number = 0,
   accountIndex: number = 0
 ): Promise<AddressInfo[]> {
+  if (!Number.isInteger(startIndex) || startIndex < 0 || startIndex > MAX_BIP32_INDEX) {
+    throw new Error(`Invalid start index. Must be between 0 and ${MAX_BIP32_INDEX}`);
+  }
+  if (startIndex + count - 1 > MAX_BIP32_INDEX) {
+    throw new Error(`Address range exceeds maximum allowed index of ${MAX_BIP32_INDEX}`);
+  }
   const addresses: AddressInfo[] = [];
 
   for (let i = startIndex; i < startIndex + count; i++) {

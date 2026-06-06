@@ -58,26 +58,26 @@ export default function GlobalHeader({ onAccountChange, onRefresh }: GlobalHeade
     let idToSelect = id;
 
     if (targetAccount && !targetAccount.parentId) {
-       if (!isExplicitSubAccount && targetAccount.lastActiveSubAccountId) {
-           const subExists = state.accounts.find(a => a.id === targetAccount.lastActiveSubAccountId);
-           if (subExists) idToSelect = targetAccount.lastActiveSubAccountId;
-       }
-       if (isExplicitSubAccount) {
-           targetAccount.lastActiveSubAccountId = id;
-           const rootConfig = config.accounts.find(a => a.id === id);
-           if (rootConfig) rootConfig.lastActiveSubAccountId = id;
-       }
+      if (!isExplicitSubAccount && targetAccount.lastActiveSubAccountId) {
+        const subExists = state.accounts.find(a => a.id === targetAccount.lastActiveSubAccountId);
+        if (subExists) idToSelect = targetAccount.lastActiveSubAccountId;
+      }
+      if (isExplicitSubAccount) {
+        targetAccount.lastActiveSubAccountId = id;
+        const rootConfig = config.accounts.find(a => a.id === id);
+        if (rootConfig) rootConfig.lastActiveSubAccountId = id;
+      }
     } else if (targetAccount && targetAccount.parentId) {
-       const root = state.accounts.find(a => a.id === targetAccount.parentId);
-       if (root) root.lastActiveSubAccountId = id;
-       const rootConfig = config.accounts.find(a => a.id === targetAccount.parentId);
-       if (rootConfig) rootConfig.lastActiveSubAccountId = id;
+      const root = state.accounts.find(a => a.id === targetAccount.parentId);
+      if (root) root.lastActiveSubAccountId = id;
+      const rootConfig = config.accounts.find(a => a.id === targetAccount.parentId);
+      if (rootConfig) rootConfig.lastActiveSubAccountId = id;
     }
 
     config.activeAccountId = idToSelect;
     await saveWalletConfig(config);
     state.activeAccountId = idToSelect;
-    
+
     const account = state.accounts.find(a => a.id === idToSelect);
     if (account) {
       state.currentAddressType = account.addressType || 'native_segwit';
@@ -188,21 +188,24 @@ export default function GlobalHeader({ onAccountChange, onRefresh }: GlobalHeade
     }
   };
 
+  const MAX_BIP32_INDEX = 2147483647;
+
   const setAddressIndex = async (idx: number) => {
-    state.currentAddressIndex = idx;
+    const clampedIdx = Math.max(0, Math.min(idx, MAX_BIP32_INDEX));
+    state.currentAddressIndex = clampedIdx;
 
     // Auto-save the last used index for this account
     const config = await getWalletConfig();
     const active = config.accounts.find(a => a.id === state.activeAccountId);
-    if (active && active.lastAddressIndex !== idx) {
-      active.lastAddressIndex = idx;
+    if (active && active.lastAddressIndex !== clampedIdx) {
+      active.lastAddressIndex = clampedIdx;
       await saveWalletConfig(config);
     }
 
     // Update active memory state too so it syncs
     const memoryActive = state.accounts.find(a => a.id === state.activeAccountId);
     if (memoryActive) {
-      memoryActive.lastAddressIndex = idx;
+      memoryActive.lastAddressIndex = clampedIdx;
     }
 
     onAccountChange();
@@ -418,6 +421,7 @@ export default function GlobalHeader({ onAccountChange, onRefresh }: GlobalHeade
             id='index'
             type="number"
             min="0"
+            max={MAX_BIP32_INDEX}
             value={state.currentAddressIndex}
             onChange={(e) => {
               const val = parseInt(e.target.value, 10);
@@ -425,7 +429,7 @@ export default function GlobalHeader({ onAccountChange, onRefresh }: GlobalHeade
             }}
             className="input input--mono"
             style={{
-              padding: '0 2px', fontSize: '12px', width: '32px', textAlign: 'center',
+              padding: '0 2px', fontSize: '12px', width: '40px', textAlign: 'center',
               minHeight: '26px', background: 'transparent', border: 'none'
             }}
             title="Address Number"
@@ -434,6 +438,7 @@ export default function GlobalHeader({ onAccountChange, onRefresh }: GlobalHeade
             className="btn btn--ghost btn--sm"
             style={{ padding: '0 4px', fontSize: '14px', minHeight: '26px' }}
             onClick={() => setAddressIndex(state.currentAddressIndex + 1)}
+            disabled={state.currentAddressIndex >= MAX_BIP32_INDEX}
             title="Next Address"
           >
             <PlusIcon />
