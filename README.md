@@ -220,4 +220,4 @@ For support or security disclosures, reach out securely:
 
 ## 📄 License
 
-MIT - see [LICENSE](LICENSE) for details.
+GNU General Public License v3.0 (GPLv3) - see [LICENSE](LICENSE) for details. This ensures the project remains strictly open-source and free forever.
