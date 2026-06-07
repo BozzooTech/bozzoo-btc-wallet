@@ -5,6 +5,7 @@ const webpack = require('webpack');
 
 
 const isFirefox = process.env.BROWSER === 'firefox';
+const isLive = process.env.TARGET === 'live';
 
 module.exports = {
   //  Entry Points (all TypeScript) 
@@ -14,7 +15,7 @@ module.exports = {
   },
 
   output: {
-    path: path.resolve(__dirname, isFirefox ? 'dist/firefox' : 'dist/chrome'),
+    path: path.resolve(__dirname, isLive ? 'live' : (isFirefox ? 'dist/firefox' : 'dist/chrome')),
     filename: '[name].js',
     clean: true,
   },
@@ -75,11 +76,11 @@ module.exports = {
     }),
     new CopyPlugin({
       patterns: [
-        {
+        ...(isLive ? [] : [{
           from: isFirefox ? 'manifest.firefox.json' : 'manifest.json',
           to: 'manifest.json',
-        },
-        { from: 'index.html', to: 'popup.html' },
+        }]),
+        { from: 'index.html', to: isLive ? 'index.html' : 'popup.html' },
         { from: 'assets', to: 'assets', noErrorOnMissing: true },
       ],
     }),
