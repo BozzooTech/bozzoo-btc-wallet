@@ -77,14 +77,6 @@ export default function App() {
           return;
         }
 
-        const lastActive = await getLastActive();
-        const SIXTY_DAYS_MS = 60 * 24 * 60 * 60 * 1000;
-        if (lastActive && Date.now() - lastActive > SIXTY_DAYS_MS) {
-          await deleteWallet();
-          navigate('welcome');
-          return;
-        }
-
         const sessionActive = await loadSessionFromBackground();
         if (sessionActive || Object.keys(state.unlockedXpubs).length > 0) {
           state.accounts = config.accounts;
@@ -130,8 +122,10 @@ export default function App() {
       chrome.runtime.onMessage.addListener(lockListener);
     }
 
-    // Local inactivity timer (15 minutes)
+    // Local inactivity timer (10 minutes)
     let timeout: ReturnType<typeof setTimeout>;
+    let lastSignal = 0;
+    
     const resetTimer = () => {
       if (timeout) clearTimeout(timeout);
       timeout = setTimeout(() => {
@@ -140,7 +134,12 @@ export default function App() {
           navigate('unlock');
         }
       }, 10 * 60 * 1000); // 10 minutes
-      signalActivity();
+      
+      const now = Date.now();
+      if (now - lastSignal > 5000) {
+        lastSignal = now;
+        signalActivity();
+      }
     };
     window.addEventListener('mousemove', resetTimer);
     window.addEventListener('keydown', resetTimer);

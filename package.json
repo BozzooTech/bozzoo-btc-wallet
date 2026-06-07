@@ -1,7 +1,7 @@
 {
   "name": "bozzoo-btc-wallet",
   "version": "1.0.0",
-  "description": "Privacy-focused, open-source Bitcoin-only browser extension wallet",
+  "description": "Open-source, non-custodial Bitcoin wallet. Supports Legacy, SegWit & Taproot.",
   "scripts": {
     "start": "webpack serve --mode development",
     "build": "webpack --mode production",
