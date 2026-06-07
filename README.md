@@ -11,6 +11,10 @@ Built entirely in **TypeScript** using battle-tested, audited Bitcoin libraries 
 
 Compatible with **Chrome, Brave, Edge, Firefox, and Tor Browser**.
 
+<p align="center">
+  <img src="output/dashboard.png" alt="Bozzoo Wallet Dashboard Screenshot" style="width: 450px; max-width: 100%; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin: 20px 0;" />
+</p>
+
 ## 100% Free Forever
 This wallet was built by and for the Bitcoin community. It is **completely free** for everyone to use. There are absolutely no hidden platform taxes, no "premium" upgrades, and no paid features. We believe privacy-preserving Bitcoin tools should be accessible, open-source, and strictly non-profit.
 
