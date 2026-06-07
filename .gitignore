@@ -1,0 +1,33 @@
+# Build output
+dist/
+dist-firefox/
+
+# Dependencies
+node_modules/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment (never commit private keys)
+.env
+.env.local
+
+# Test coverage
+coverage/
+
+# Packaged extension zips (build artifacts)
+*.zip
