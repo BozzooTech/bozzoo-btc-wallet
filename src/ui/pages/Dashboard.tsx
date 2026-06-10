@@ -6,6 +6,7 @@ import { getAddressBalance, getTransactionHistory, formatBtc, getBtcPrice, btcTo
 import { deriveAddress } from '../../engine/wallet';
 import { getWalletConfig, saveWalletConfig } from '../../engine/storage';
 import { Transaction } from '../../types';
+import type { AddressType } from '../../types';
 import GlobalHeader from '../components/GlobalHeader';
 
 export default function Dashboard() {
@@ -19,11 +20,6 @@ export default function Dashboard() {
   const [copiedAddr, setCopiedAddr] = useState(false);
   const [copiedTx, setCopiedTx] = useState<string | null>(null);
 
-  // Scanner state
-  const [showScanner, setShowScanner] = useState(false);
-  const [scanRange, setScanRange] = useState(10);
-  const [scanResults, setScanResults] = useState<{ index: number, address: string, balance: number }[]>([]);
-  const [isScanning, setIsScanning] = useState(false);
 
   const [pollIntervalMs, setPollIntervalMs] = useState<number>(30000);
   const [isRateLimited, setIsRateLimited] = useState<boolean>(false);
@@ -142,34 +138,6 @@ export default function Dashboard() {
 
 
 
-  const runScanner = async () => {
-    setIsScanning(true);
-    setScanResults([]);
-    try {
-      const active = state.accounts?.find(a => a.id === state.activeAccountId);
-      const accIndex = active?.accountIndex ?? 0;
-
-      const results = [];
-      const xpub = state.unlockedXpubs[state.activeAccountId!]?.[state.currentAddressType];
-      if (!xpub) throw new Error('Wallet locked');
-
-      for (let i = 0; i <= scanRange; i++) {
-        const info = await deriveAddress(xpub, state.currentAddressType, i, accIndex);
-        const bal = await getAddressBalance(info.address);
-        if (bal.total > 0) {
-          results.push({ index: i, address: info.address, balance: bal.total });
-          setScanResults([...results]); // update progressively
-        }
-      }
-      if (results.length === 0) {
-        setScanResults([{ index: -1, address: 'No balances found in this range.', balance: 0 }]);
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsScanning(false);
-    }
-  };
 
   return (
     <div className="page">
@@ -189,7 +157,7 @@ export default function Dashboard() {
 
       {/* Balance Card */}
       <div style={{ padding: '24px 16px 16px' }}>
-        <div className="card card--glass" style={{ textAlign: 'center', padding: '32px 16px' }}>
+        <div className="card card-glass" style={{ textAlign: 'center', padding: '32px 16px' }}>
           <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Available Balance
           </div>
@@ -220,11 +188,6 @@ export default function Dashboard() {
               </div>
             )}
           </div>
-
-          <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-            <button className="btn btn--primary" onClick={() => navigate('send')}>Send</button>
-            <button className="btn btn--secondary" onClick={() => navigate('receive')}>Receive</button>
-          </div>
         </div>
       </div>
 
@@ -252,7 +215,7 @@ export default function Dashboard() {
 
                 return (
                   <a key={tx.txid} href={`https://mempool.space/tx/${tx.txid}`} target="_blank" rel="noopener noreferrer" className="tx-item">
-                    <div className={`tx-icon ${isSent ? 'tx-icon--sent' : 'tx-icon--received'}`} style={{ position: 'relative' }}>
+                    <div className={`tx-icon ${isSent ? 'tx-icon-sent' : 'tx-icon-received'}`} style={{ position: 'relative' }}>
                       {isSent ? (
                         <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
                       ) : (
@@ -268,7 +231,7 @@ export default function Dashboard() {
                           {isPending ? (isSent ? 'Sending...' : 'Pending Receive...') : (isSent ? 'Sent' : 'Received')}
                         </div>
                         <button
-                          className={`copy-btn ${isCopied ? 'copy-btn--copied' : ''}`}
+                          className={`copy-btn ${isCopied ? 'copy-btn-copied' : ''}`}
                           style={{ padding: '0', background: 'transparent' }}
                           onClick={(e) => copyTxid(e, tx.txid)}
                           title="Copy TXID"
@@ -283,7 +246,7 @@ export default function Dashboard() {
                       <div className="tx-date">{isPending ? <span style={{ color: 'var(--yellow)' }}>Pending Confirmation...</span> : `${timeStr} \u00B7 ${date.toLocaleDateString()}`}</div>
                     </div>
                     <div className="tx-amount">
-                      <div className={`tx-amount__btc ${isSent ? 'tx-amount__btc--sent' : 'tx-amount__btc--received'}`}>
+                      <div className={`tx-amount__btc ${isSent ? 'tx-amount__btc-sent' : 'tx-amount__btc-received'}`}>
                         {isSent ? '-' : '+'}{formatBtc(Math.abs(tx.value))}
                       </div>
                       <div className="tx-amount__status" style={{ color: isPending ? 'var(--yellow)' : 'var(--green)' }}>
@@ -298,63 +261,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {showScanner && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ width: '90%', maxWidth: '400px' }}>
-            <h3 style={{ marginTop: 0 }}>Wallet Index Scanner</h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-              Scan the blockchain for addresses with balances starting from index 0.
-            </p>
-
-            <div className="input-group">
-              <label className="input-label">Max Index to Scan</label>
-              <input
-                type="number"
-                className="input"
-                value={scanRange}
-                onChange={e => setScanRange(Number(e.target.value) || 10)}
-                max="100"
-              />
-            </div>
-
-            <div style={{ marginTop: '16px', maxHeight: '150px', overflowY: 'auto', background: 'var(--bg-surface-2)', padding: '8px', borderRadius: '4px' }}>
-              {isScanning ? (
-                <div style={{ textAlign: 'center', padding: '16px' }}><div className="spinner"></div></div>
-              ) : scanResults.length === 0 ? (
-                <div style={{ textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>Click Scan to start searching.</div>
-              ) : (
-                scanResults.map((r, idx) => (
-                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid var(--border-subtle)', fontSize: '12px' }}>
-                    {r.index >= 0 ? (
-                      <>
-                        <span>Index {r.index}</span>
-                        <span style={{ color: 'var(--orange)' }}>{formatBtc(r.balance)} BTC</span>
-                        <button
-                          className="btn btn--ghost btn--sm"
-                          onClick={() => {
-                            state.currentAddressIndex = r.index;
-                            setShowScanner(false);
-                            loadData();
-                          }}
-                        >Jump</button>
-                      </>
-                    ) : (
-                      <span>{r.address}</span>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-
-            <div style={{ display: 'flex', gap: '8px', marginTop: '24px' }}>
-              <button className="btn btn--ghost" style={{ flex: 1 }} onClick={() => setShowScanner(false)}>Close</button>
-              <button className="btn btn--primary" style={{ flex: 1 }} onClick={runScanner} disabled={isScanning}>
-                {isScanning ? 'Scanning...' : 'Start Scan'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
       <TopNav />
     </div>
   );

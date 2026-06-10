@@ -7,12 +7,15 @@ import { encrypt } from '../../security/encryption';
 import { KeyIcon } from '../components/Icons';
 
 export default function SetPassword() {
-  const { navigate, goBack } = useContext(AppContext);
+  const { navigate, goBack, routeParams } = useContext(AppContext);
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [backedUp, setBackedUp] = useState(false);
+
+  // Number of accounts requested from Create/Import pages (default 1)
+  const requestedAccountCount: number = routeParams?.accountCount ?? 1;
 
   const isAddingAccount = state.accounts && state.accounts.length > 0;
 
@@ -41,14 +44,12 @@ export default function SetPassword() {
         throw new Error('Incorrect password');
       }
 
-      const newAccountId = crypto.randomUUID();
       const addrType = state.pendingAddressType || 'native_segwit';
-      const rootWalletsCount = state.accounts?.filter(a => !a.parentId).length || 0;
-      const name = isAddingAccount ? `Wallet ${rootWalletsCount + 1}` : 'Wallet 1';
 
       const { ADDRESS_TYPES, deriveAccountXpub } = await import('../../engine/wallet');
 
       if (isAddingAccount) {
+        // Adding a brand-new independent seed to an existing app
         const testXpub = await deriveAccountXpub(state.tempMnemonic, 'native_segwit', 0);
         let duplicateFound = false;
         if (state.unlockedXpubs) {
@@ -65,47 +66,95 @@ export default function SetPassword() {
         if (duplicateFound) {
           throw new Error('This wallet has already been imported.');
         }
-      }
 
-      if (!isAddingAccount) {
-        // First time setup
-        await createWallet(password, state.tempMnemonic);
-        
-        state.accounts = [
-          {
-            id: newAccountId,
-            name,
-            addressType: addrType,
-            accountIndex: 0
-          }
-        ];
-
-        state.unlockedXpubs[newAccountId] = {} as any;
-        for (const type of Object.values(ADDRESS_TYPES)) {
-          state.unlockedXpubs[newAccountId][type] = await deriveAccountXpub(state.tempMnemonic, type, 0);
-        }
-      } else {
-        // Adding a new independent seed
+        // Encrypt new seed under the current password
         const encryptedBlob = await encrypt(state.tempMnemonic, password);
+        const rootWalletsCount = state.accounts?.filter(a => !a.parentId).length || 0;
 
-        state.accounts.push({
-          id: newAccountId,
-          name,
+        // Create a root account entry (accountIndex 0) for the new seed
+        const rootId = crypto.randomUUID();
+        const rootAcc = {
+          id: rootId,
+          name: `Wallet ${rootWalletsCount + 1}`,
           addressType: addrType,
           accountIndex: 0,
-          encryptedSeed: JSON.stringify(encryptedBlob)
-        });
+          encryptedSeed: JSON.stringify(encryptedBlob),
+        };
 
-        state.unlockedXpubs[newAccountId] = {} as any;
+        state.accounts.push(rootAcc);
+        state.unlockedXpubs[rootId] = {} as any;
         for (const type of Object.values(ADDRESS_TYPES)) {
-          state.unlockedXpubs[newAccountId][type] = await deriveAccountXpub(state.tempMnemonic, type, 0);
+          state.unlockedXpubs[rootId][type] = await deriveAccountXpub(state.tempMnemonic, type, 0);
         }
+
+        // Create additional accounts (accountIndex 1..N-1) as sub-accounts of the root
+        const count = Math.max(1, Math.min(20, requestedAccountCount));
+        let lastCreatedId = rootId;
+        for (let i = 1; i < count; i++) {
+          const subId = crypto.randomUUID();
+          const subAcc = {
+            id: subId,
+            name: `Account ${i + 1}`,
+            addressType: addrType,
+            accountIndex: i,
+            parentId: rootId,
+          };
+          state.accounts.push(subAcc);
+          state.unlockedXpubs[subId] = {} as any;
+          for (const type of Object.values(ADDRESS_TYPES)) {
+            state.unlockedXpubs[subId][type] = await deriveAccountXpub(state.tempMnemonic, type, i);
+          }
+          lastCreatedId = subId;
+        }
+
+        state.activeAccountId = lastCreatedId;
+
+      } else {
+        // First-time setup: create wallet + N accounts
+        await createWallet(password, state.tempMnemonic);
+
+        const count = Math.max(1, Math.min(20, requestedAccountCount));
+        const rootId = crypto.randomUUID();
+
+        // Root account (account index 0)
+        const rootAcc = {
+          id: rootId,
+          name: 'Wallet 1',
+          addressType: addrType,
+          accountIndex: 0,
+        };
+        state.accounts = [rootAcc];
+        state.unlockedXpubs[rootId] = {} as any;
+        for (const type of Object.values(ADDRESS_TYPES)) {
+          state.unlockedXpubs[rootId][type] = await deriveAccountXpub(state.tempMnemonic, type, 0);
+        }
+
+        // Additional accounts (1..N-1) as sub-accounts
+        let lastCreatedId = rootId;
+        for (let i = 1; i < count; i++) {
+          const subId = crypto.randomUUID();
+          const subAcc = {
+            id: subId,
+            name: `Account ${i + 1}`,
+            addressType: addrType,
+            accountIndex: i,
+            parentId: rootId,
+          };
+          state.accounts.push(subAcc);
+          state.unlockedXpubs[subId] = {} as any;
+          for (const type of Object.values(ADDRESS_TYPES)) {
+            state.unlockedXpubs[subId][type] = await deriveAccountXpub(state.tempMnemonic, type, i);
+          }
+          lastCreatedId = subId;
+        }
+
+        state.activeAccountId = lastCreatedId;
       }
 
+      // Wipe temporary mnemonic from memory
       state.tempMnemonic = '0'.repeat(64);
       delete state.tempMnemonic;
 
-      state.activeAccountId = newAccountId;
       state.currentAddressType = addrType;
       state.currentAddressIndex = 0;
       clearPending();
@@ -127,7 +176,9 @@ export default function SetPassword() {
   return (
     <div className="page" style={{ background: 'var(--bg-base)' }}>
       <header className="page-header">
-        <button className="page-header__back" onClick={goBack}>←</button>
+        <button className="page-header__back" style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center' }} onClick={goBack}>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
         <h2 className="page-header__title">{isAddingAccount ? 'Verify Password' : 'Set Password'}</h2>
         <div style={{ width: '34px' }}></div>
       </header>
@@ -141,6 +192,11 @@ export default function SetPassword() {
               ? 'Enter your app password to securely encrypt and save this new seed phrase.'
               : 'This password encrypts your seed phrase locally on your device.'}
           </p>
+          {!isAddingAccount && requestedAccountCount > 1 && (
+            <div style={{ marginTop: '8px', padding: '8px 12px', background: 'rgba(247,148,26,0.1)', border: '1px solid rgba(247,148,26,0.3)', borderRadius: '6px', fontSize: '12px', color: 'var(--orange)', textAlign: 'center' }}>
+              Will create {requestedAccountCount} accounts (Account 1–{requestedAccountCount}) from this seed
+            </div>
+          )}
         </div>
 
         <div className="input-group">
@@ -182,7 +238,7 @@ export default function SetPassword() {
 
         <div className="form-footer">
           <button
-            className={`btn btn--primary ${loading ? 'btn--loading' : ''}`}
+            className={`btn btn-primary ${loading ? 'btn-loading' : ''}`}
             onClick={handleCreate}
             disabled={!password || (!isAddingAccount && !confirm) || loading || (!isAddingAccount && !backedUp)}
           >
@@ -193,7 +249,7 @@ export default function SetPassword() {
         {isAddingAccount && (
           <div style={{ marginTop: '24px', textAlign: 'center' }}>
             <button
-              className="btn btn--ghost btn--sm"
+              className="btn btn-ghost btn-sm"
               style={{ color: 'var(--red)', fontSize: '13px' }}
               onClick={async () => {
                 const conf = window.confirm('DANGER: This will delete ALL wallets and data from this device! Are you sure?');

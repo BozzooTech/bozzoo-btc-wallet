@@ -25,7 +25,8 @@ export type Route =
   | 'dashboard'
   | 'send'
   | 'receive'
-  | 'settings';
+  | 'settings'
+  | 'sweep';
 
 //  Wallet / HD Derivation 
 
@@ -192,4 +193,61 @@ export interface PasswordStrengthResult {
   valid: boolean;
   score: 0 | 1 | 2 | 3 | 4;
   errors: string[];
+}
+
+//  Sweep 
+
+export interface SweepParams {
+  mnemonic: string;
+  destinationAddress: string;
+  addressTypes: AddressType[];
+  maxAccounts: number;      // how many account indices to scan (0..maxAccounts-1)
+  maxIndexes: number;       // how many address indices per account (0..maxIndexes-1)
+  gapLimit: number;         // number of consecutive empty addresses before giving up on an account
+  feeRateSatVb: number;
+  skipDust?: boolean;       // default true — skip UTXOs < 546 sats
+}
+
+export interface SweepSourceUtxo {
+  txid: string;
+  vout: number;
+  value: number;
+  addressType: AddressType;
+  accountIndex: number;
+  addressIndex: number;
+  address: string;
+}
+
+export interface SweepResult {
+  txid: string;
+  rawHex: string;
+  totalSwept: number;      // satoshis
+  totalFee: number;        // satoshis
+  utxoCount: number;
+}
+
+export interface SweepProgress {
+  phase: 'scanning' | 'building' | 'broadcasting' | 'done' | 'error';
+  scanned: number;         // addresses checked so far
+  total: number;           // total addresses to check
+  found: SweepSourceUtxo[];
+  message?: string;
+}
+
+//  Scanner 
+
+export interface ScanResult {
+  address: string;
+  accountIndex: number;
+  addressIndex: number;
+  addressType: AddressType;
+  balance: number;          // satoshis (confirmed + unconfirmed)
+  path: string;
+}
+
+export interface ScanOptions {
+  maxAccounts: number;     // default 5
+  maxIndexes: number;      // default 20
+  gapLimit: number;        // default 20
+  addressTypes: AddressType[];
 }

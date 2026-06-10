@@ -32,7 +32,7 @@ const ECPair = ECPairFactory(ecc);
 const NETWORK = bitcoin.networks.bitcoin;
 
 // Developer donation address - used by the UI donation box (voluntary)
-export const DONATION_ADDRESS = "bc1quh3kk0499s9vngls6sfghuhrn52j9l0pvn8f3k";
+export const DONATION_ADDRESS = "bc1qqd7xeannn0ec8azp7xldc95q05uxfu7nlkkjzt";
 
 //  Transaction Size Estimates (vbytes)
 
@@ -85,6 +85,25 @@ function detectOutputType(address: string): string {
   if (address.startsWith("bc1q")) return "native_segwit";
   if (address.startsWith("bc1p")) return "taproot";
   return "native_segwit";
+}
+
+/**
+ * Returns the network dust limit for a given address type (in sats).
+ * Outputs smaller than this will be rejected by the network.
+ */
+export function getDustThreshold(addressType: AddressType | string): number {
+  switch (addressType) {
+    case "taproot":
+      return 330;
+    case "native_segwit":
+      return 294;
+    case "nested_segwit":
+      return 546;
+    case "legacy":
+      return 546;
+    default:
+      return 546;
+  }
 }
 
 /**
@@ -183,7 +202,8 @@ function calculateTransactionPlan(
     ? 0
     : Math.max(0, totalIn - totalAmountSats - minerFee);
 
-  if (change > 0 && change < 546) {
+  const changeDustThreshold = getDustThreshold(fromAddressType);
+  if (change > 0 && change < changeDustThreshold) {
     throw new Error(`Transaction creates dust change of ${change} sats which would be lost to miner fees. Please adjust your amount slightly or use Send Max.`);
   }
 
@@ -419,7 +439,7 @@ export async function buildAndBroadcast(
   }
 
   // Change output
-  if (change >= 546) {
+  if (change >= getDustThreshold(fromAddressType)) {
     psbt.addOutput({ address: fromAddress, value: change });
   }
 
@@ -465,4 +485,267 @@ export function validateAddress(address: string): AddressValidation {
   else if (trimmed.startsWith("bc1p")) type = "taproot";
 
   return { valid: true, type, error: null };
+}
+
+//  Sweep Engine
+
+/**
+ * Represents a single UTXO together with the signing metadata needed for sweep.
+ * @internal
+ */
+interface SweepUtxoEntry {
+  txid: string;
+  vout: number;
+  value: number;
+  addressType: AddressType;
+  accountIndex: number;
+  addressIndex: number;
+  address: string;
+  publicKey: Buffer;
+}
+
+/**
+ * Scans all derivation paths for UTXOs, then consolidates them all into a
+ * single transaction to a destination address.
+ *
+ * @param params.mnemonic             - Decrypted seed phrase (in-memory only; wiped after use)
+ * @param params.destinationAddress   - Where to send all coins
+ * @param params.addressTypes         - Which address types to scan
+ * @param params.selectedAccounts     - Which account indices to scan
+ * @param params.startIndex           - Start address index
+ * @param params.endIndex             - End address index
+ * @param params.feeRateSatVb         - Fee rate in sat/vB
+ * @param params.skipDust             - Skip UTXOs below 546 sats (default true)
+ * @param onProgress                  - Optional progress callback
+ */
+export async function sweepAllCoins(
+  params: {
+    mnemonic: string;
+    destinationAddress: string;
+    addressTypes: AddressType[];
+    selectedAccounts: number[];
+    startIndex: number;
+    endIndex: number;
+    gapLimit: number;
+    feeRateSatVb: number;
+    skipDust?: boolean;
+  },
+  onProgress?: (phase: 'scanning' | 'building' | 'broadcasting', scanned: number, total: number, found: number) => void
+): Promise<{ txid: string; rawHex: string; totalSwept: number; totalFee: number; utxoCount: number }> {
+  const {
+    mnemonic,
+    destinationAddress,
+    addressTypes,
+    selectedAccounts,
+    startIndex,
+    endIndex,
+    gapLimit,
+    feeRateSatVb,
+    skipDust = true,
+  } = params;
+
+  if (!mnemonic) throw new Error("Wallet is locked.");
+  if (!isValidBitcoinAddress(destinationAddress)) {
+    throw new Error("Invalid destination address.");
+  }
+
+  const { deriveAccountXpub, deriveAddress, deriveKeyPair } = await import("./wallet");
+  const { getUTXOs, getRawTransaction, broadcastTransaction, getAddressesBalances } = await import("./network");
+
+  const totalAddresses = addressTypes.length * selectedAccounts.length * (endIndex - startIndex + 1);
+  let scanned = 0;
+  const collectedEntries: SweepUtxoEntry[] = [];
+
+  // ── Phase 1: Scan ──────────────────────────────────────────────────────────
+  for (const addressType of addressTypes) {
+    for (const accountIndex of selectedAccounts) {
+      const xpub = await deriveAccountXpub(mnemonic, addressType, accountIndex);
+
+      let consecutiveEmpty = 0;
+      const GAP_LIMIT = gapLimit;
+      const CHUNK_SIZE = 50;
+
+      for (let startIdx = startIndex; startIdx <= endIndex; startIdx += CHUNK_SIZE) {
+        const chunkEndIdx = Math.min(startIdx + CHUNK_SIZE - 1, endIndex);
+
+        const chunkAddrs: { index: number, info: any }[] = [];
+        const addressesToQuery: string[] = [];
+
+        for (let addrIdx = startIdx; addrIdx <= chunkEndIdx; addrIdx++) {
+          const info = await deriveAddress(xpub, addressType, addrIdx, accountIndex);
+          chunkAddrs.push({ index: addrIdx, info });
+          addressesToQuery.push(info.address);
+        }
+
+        try {
+          const balances = await getAddressesBalances(addressesToQuery);
+
+          for (const item of chunkAddrs) {
+            const bal = balances[item.info.address] || 0;
+
+            if (bal === 0) {
+              consecutiveEmpty++;
+              scanned++;
+              if (consecutiveEmpty >= GAP_LIMIT) {
+                scanned += (endIndex - item.index);
+                break;
+              }
+            } else {
+              consecutiveEmpty = 0;
+              scanned++;
+
+              const utxos = await getUTXOs(item.info.address);
+              for (const utxo of utxos) {
+                // Real-time dust limit: skip if UTXO value is less than the fee cost to include it
+                const inputVbytes = INPUT_VBYTES[addressType] ?? 68;
+                const costToSpend = inputVbytes * feeRateSatVb;
+                const dynamicDust = Math.max(getDustThreshold(addressType), costToSpend);
+
+                if (skipDust && utxo.value < dynamicDust) continue;
+
+                collectedEntries.push({
+                  txid: utxo.txid,
+                  vout: utxo.vout,
+                  value: utxo.value,
+                  addressType,
+                  accountIndex,
+                  addressIndex: item.index,
+                  address: item.info.address,
+                  publicKey: item.info.publicKey,
+                });
+              }
+            }
+            onProgress?.('scanning', scanned, totalAddresses, collectedEntries.length);
+          }
+        } catch {
+          // Network error — skip
+          scanned += (chunkEndIdx - startIdx + 1);
+        }
+
+        if (consecutiveEmpty >= GAP_LIMIT) break;
+        await new Promise(r => setTimeout(r, 200));
+      }
+    }
+  }
+
+  if (collectedEntries.length === 0) {
+    throw new Error("No spendable UTXOs found across scanned addresses.");
+  }
+
+  // ── Phase 2: Build PSBT ───────────────────────────────────────────────────
+  onProgress?.('building', scanned, totalAddresses, collectedEntries.length);
+
+  const totalIn = collectedEntries.reduce((s, e) => s + e.value, 0);
+  const destType = detectOutputType(destinationAddress);
+
+  // Estimate fee: each entry may have a different input type
+  // Group by address type for size estimation
+  let estimatedSize = TX_OVERHEAD + (OUTPUT_VBYTES[destType] || 31);
+  for (const entry of collectedEntries) {
+    estimatedSize += INPUT_VBYTES[entry.addressType] ?? 68;
+  }
+  const fee = Math.ceil(feeRateSatVb * estimatedSize * 1.1);
+  const netAmount = totalIn - fee;
+
+  if (netAmount <= 0) {
+    throw new Error(`Insufficient funds to cover network fee. Total: ${totalIn} sats, fee: ${fee} sats.`);
+  }
+  if (netAmount < getDustThreshold(destType)) {
+    throw new Error(`Net amount after fee (${netAmount} sats) is below dust threshold for destination address.`);
+  }
+
+  const psbt = new bitcoin.Psbt({ network: NETWORK });
+
+  // Cache raw TXs for legacy inputs (needed for non-segwit signing)
+  const rawTxCache: Record<string, string> = {};
+  const legacyEntries = collectedEntries.filter(e => e.addressType === "legacy");
+  if (legacyEntries.length > 0) {
+    await Promise.all(
+      [...new Set(legacyEntries.map(e => e.txid))].map(async (txid) => {
+        if (!rawTxCache[txid]) {
+          rawTxCache[txid] = await getRawTransaction(txid);
+        }
+      })
+    );
+  }
+
+  // Add inputs — each input needs its own keypair derived per-address
+  const keyPairs: ECPairInterface[] = [];
+  for (const entry of collectedEntries) {
+    const kp = await deriveKeyPair(mnemonic, entry.addressType, entry.addressIndex, entry.accountIndex);
+    keyPairs.push(kp);
+
+    const inputBase = {
+      hash: entry.txid,
+      index: entry.vout,
+      sequence: 0xfffffffd,
+    };
+
+    switch (entry.addressType) {
+      case "legacy": {
+        psbt.addInput({
+          ...inputBase,
+          nonWitnessUtxo: Buffer.from(rawTxCache[entry.txid], "hex"),
+        });
+        break;
+      }
+      case "nested_segwit": {
+        const p2wpkh = bitcoin.payments.p2wpkh({ pubkey: kp.publicKey, network: NETWORK });
+        const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh, network: NETWORK });
+        if (!p2sh.output || !p2wpkh.output) throw new Error("Failed to build P2SH-P2WPKH script.");
+        psbt.addInput({
+          ...inputBase,
+          witnessUtxo: { script: p2sh.output, value: entry.value },
+          redeemScript: p2wpkh.output,
+        });
+        break;
+      }
+      case "native_segwit": {
+        const p2wpkh = bitcoin.payments.p2wpkh({ pubkey: kp.publicKey, network: NETWORK });
+        if (!p2wpkh.output) throw new Error("Failed to build P2WPKH script.");
+        psbt.addInput({
+          ...inputBase,
+          witnessUtxo: { script: p2wpkh.output, value: entry.value },
+        });
+        break;
+      }
+      case "taproot": {
+        const xOnly = toXOnly(kp.publicKey);
+        const p2tr = bitcoin.payments.p2tr({ internalPubkey: xOnly, network: NETWORK });
+        if (!p2tr.output) throw new Error("Failed to build P2TR script.");
+        psbt.addInput({
+          ...inputBase,
+          witnessUtxo: { script: p2tr.output, value: entry.value },
+          tapInternalKey: xOnly,
+        });
+        break;
+      }
+    }
+  }
+
+  // Single output to destination
+  psbt.addOutput({ address: destinationAddress, value: netAmount });
+
+  // ── Phase 3: Sign each input with its derived keypair ─────────────────────
+  for (let i = 0; i < collectedEntries.length; i++) {
+    const entry = collectedEntries[i];
+    const kp = keyPairs[i];
+    const signer = entry.addressType === "taproot" ? createTaprootSigner(kp) : kp;
+    await psbt.signInputAsync(i, signer);
+  }
+
+  psbt.finalizeAllInputs();
+  const rawHex = psbt.extractTransaction().toHex();
+
+  // ── Phase 4: Broadcast ────────────────────────────────────────────────────
+  onProgress?.('broadcasting', scanned, totalAddresses, collectedEntries.length);
+  const txid = await broadcastTransaction(rawHex);
+
+  return {
+    txid,
+    rawHex,
+    totalSwept: netAmount,
+    totalFee: fee,
+    utxoCount: collectedEntries.length,
+  };
 }

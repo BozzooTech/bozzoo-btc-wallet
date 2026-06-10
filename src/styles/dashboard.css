@@ -79,8 +79,8 @@
   font-size: 13px;
 }
 .balance-refresh:hover { color: var(--orange); background: var(--orange-glow); }
-.balance-refresh--spinning svg,
-.balance-refresh--spinning { animation: spin 1s linear infinite; }
+.balance-refresh-spinning svg,
+.balance-refresh-spinning { animation: spin 1s linear infinite; }
 
 /*  Action Buttons  */
 .action-row {
@@ -109,8 +109,8 @@
   border-color:    var(--border-orange);
   box-shadow:      var(--shadow-orange);
 }
-.action-btn--send .action-btn__icon { color: var(--red); }
-.action-btn--recv .action-btn__icon { color: var(--green); }
+.action-btn-send .action-btn__icon { color: var(--red); }
+.action-btn-recv .action-btn__icon { color: var(--green); }
 .action-btn__icon { font-size: 22px; }
 .action-btn__label { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
 

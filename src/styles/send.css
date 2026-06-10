@@ -46,7 +46,7 @@
   font-family:     var(--font);
 }
 .fee-speed-btn:hover { border-color:var(--border-strong); color:var(--text-primary); }
-.fee-speed-btn--active {
+.fee-speed-btn-active {
   border-color:  var(--orange);
   background:    var(--orange-glow);
   color:         var(--text-primary);
@@ -54,7 +54,7 @@
 .fee-speed-btn__icon   { font-size:18px; }
 .fee-speed-btn__label  { font-size:11px; font-weight:700; }
 .fee-speed-btn__rate   { font-size:10px; color:var(--text-muted); font-family:var(--font-mono); }
-.fee-speed-btn--active .fee-speed-btn__rate { color:var(--orange-light); }
+.fee-speed-btn-active .fee-speed-btn__rate { color:var(--orange-light); }
 
 /* Fee breakdown */
 .fee-breakdown {

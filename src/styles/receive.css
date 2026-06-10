@@ -107,4 +107,4 @@
   z-index:       200;
   white-space:   nowrap;
 }
-.toast--visible { opacity:1; transform:translateX(-50%) translateY(0); }
+.toast-visible { opacity:1; transform:translateX(-50%) translateY(0); }

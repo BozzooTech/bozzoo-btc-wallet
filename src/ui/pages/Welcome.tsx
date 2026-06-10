@@ -174,8 +174,9 @@ export default function Welcome() {
                 </div>
               </div>
             ))}
-            <div style={{ padding: '10px 12px', background: 'rgba(247,148,26,0.08)', borderRadius: '8px', border: '1px solid rgba(247,148,26,0.2)', fontSize: '11px', color: 'var(--text-secondary)', lineHeight: '1.5', marginTop: '4px' }}>
-              🔒 <strong>Security Model:</strong> All cryptography runs locally in your browser using the Web Crypto API. No server involved. Your seed phrase is encrypted with AES-256-GCM before it touches storage. Keys are derived on-the-fly only when signing and immediately wiped.
+            <div style={{ padding: '10px 12px', background: 'rgba(247,148,26,0.08)', borderRadius: '8px', border: '1px solid rgba(247,148,26,0.2)', fontSize: '11px', color: 'var(--text-secondary)', lineHeight: '1.5', marginTop: '4px', display: 'flex', gap: '6px' }}>
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" style={{flexShrink:0, marginTop:'1px'}}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <div><strong>Security Model:</strong> All cryptography runs locally in your browser using the Web Crypto API. No server involved. Your seed phrase is encrypted with AES-256-GCM before it touches storage. Keys are derived on-the-fly only when signing and immediately wiped.</div>
             </div>
           </div>
         )}
@@ -230,7 +231,7 @@ export default function Welcome() {
 
         <div style={{ display: 'flex', gap: '8px' }}>
           <button
-            className="btn btn--primary"
+            className="btn btn-primary"
             disabled={!agreed}
             onClick={() => navigate('create')}
             style={{ flex: 1 }}
@@ -238,7 +239,7 @@ export default function Welcome() {
             Create Wallet
           </button>
           <button
-            className="btn btn--secondary"
+            className="btn btn-secondary"
             disabled={!agreed}
             onClick={() => navigate('import')}
             style={{ flex: 1 }}

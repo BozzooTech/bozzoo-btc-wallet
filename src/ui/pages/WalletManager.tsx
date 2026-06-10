@@ -36,10 +36,10 @@ export default function WalletManager() {
 
       <div style={{ padding: '24px 16px', flex: 1, overflowY: 'auto' }}>
         <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
-          <button className="btn btn--primary" style={{ flex: 1 }} onClick={() => navigate('create')}>
+          <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => navigate('create')}>
             + Create New Wallet
           </button>
-          <button className="btn btn--secondary" style={{ flex: 1 }} onClick={() => navigate('import')}>
+          <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => navigate('import')}>
             ↓ Import Wallet
           </button>
         </div>
@@ -59,7 +59,7 @@ export default function WalletManager() {
                 <div key={wallet.id} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {/* Wallet Folder Card */}
                   <div
-                    className="card card--glass"
+                    className="card card-glass"
                     style={{
                       border: '1px solid var(--border)',
                       padding: '16px',
@@ -94,7 +94,7 @@ export default function WalletManager() {
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <button
-                          className="btn btn--ghost btn--sm"
+                          className="btn btn-ghost btn-sm"
                           style={{ color: 'var(--red)', padding: '6px', minWidth: 'auto' }}
                           onClick={(e) => {
                             e.stopPropagation();
@@ -144,7 +144,7 @@ export default function WalletManager() {
                         return (
                           <div
                             key={acc.id}
-                            className="card card--glass"
+                            className="card card-glass"
                             style={{
                               padding: '12px 16px',
                               background: isSubActive ? 'var(--bg-surface-2)' : 'transparent',
@@ -163,7 +163,7 @@ export default function WalletManager() {
 
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                               <button
-                                className={`btn btn--sm ${isSubActive ? 'btn--primary' : 'btn--ghost'}`}
+                                className={`btn btn-sm ${isSubActive ? 'btn-primary' : 'btn-ghost'}`}
                                 style={{ padding: '4px 10px', fontSize: '11px' }}
                                 onClick={() => switchAccount(acc.id)}
                               >

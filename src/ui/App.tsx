@@ -12,6 +12,8 @@ import Create from './pages/Create';
 import Import from './pages/Import';
 import SetPassword from './pages/SetPassword';
 import Unlock from './pages/Unlock';
+import Sweep from './pages/Sweep';
+import Exchange from './pages/Exchange';
 import GlobalAlert from './components/GlobalAlert';
 import GlobalConfirm from './components/GlobalConfirm';
 
@@ -93,7 +95,7 @@ export default function App() {
             if (p) savedParams = JSON.parse(p);
           } catch(e) {}
           
-          if (['dashboard', 'send', 'receive', 'settings', 'wallets'].includes(savedRoute)) {
+          if (['dashboard', 'send', 'receive', 'settings', 'wallets', 'sweep', 'exchange'].includes(savedRoute)) {
             // Bypass our own navigate wrapper to avoid wiping history wrongly on initial load
             setRoute(savedRoute);
             setRouteParams(savedParams);
@@ -173,6 +175,8 @@ export default function App() {
       {route === 'import' && <Import />}
       {route === 'set-password' && <SetPassword />}
       {route === 'unlock' && <Unlock />}
+      {route === 'sweep' && <Sweep />}
+      {route === 'exchange' && <Exchange />}
       <GlobalAlert />
       <GlobalConfirm />
     </AppContext.Provider>

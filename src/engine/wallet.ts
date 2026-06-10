@@ -392,3 +392,87 @@ export async function generateAddressRange(
 
   return addresses;
 }
+
+/**
+ * Scans all accounts and address indices for balances.
+ *
+ * @param mnemonic       - Decrypted seed phrase (in-memory only)
+ * @param options        - { maxAccounts, maxIndexes, addressTypes }
+ * @param onProgress     - Optional callback called after every address is checked
+ *                         receives (scanned, total, latestResult | null)
+ */
+export async function scanWallet(
+  mnemonic: string,
+  options: {
+    maxAccounts: number;
+    maxIndexes: number;
+    addressTypes: AddressType[];
+  },
+  onProgress?: (scanned: number, total: number, latest: {
+    address: string;
+    accountIndex: number;
+    addressIndex: number;
+    addressType: AddressType;
+    balance: number;
+    path: string;
+  } | null) => void
+): Promise<{
+  address: string;
+  accountIndex: number;
+  addressIndex: number;
+  addressType: AddressType;
+  balance: number;
+  path: string;
+}[]> {
+  const { getAddressBalance } = await import('./network');
+
+  const { maxAccounts, maxIndexes, addressTypes } = options;
+  const total = maxAccounts * maxIndexes * addressTypes.length;
+  let scanned = 0;
+  const results: {
+    address: string;
+    accountIndex: number;
+    addressIndex: number;
+    addressType: AddressType;
+    balance: number;
+    path: string;
+  }[] = [];
+
+  for (const addressType of addressTypes) {
+    for (let accountIndex = 0; accountIndex < maxAccounts; accountIndex++) {
+      // Derive xpub for this account
+      const xpub = await deriveAccountXpub(mnemonic, addressType, accountIndex);
+
+      for (let addressIndex = 0; addressIndex < maxIndexes; addressIndex++) {
+        const addrInfo = await deriveAddress(xpub, addressType, addressIndex, accountIndex);
+
+        let balance = 0;
+        try {
+          const balInfo = await getAddressBalance(addrInfo.address);
+          balance = balInfo.total;
+        } catch {
+          // Network failure — treat as 0
+        }
+
+        scanned++;
+
+        if (balance > 0) {
+          const result = {
+            address: addrInfo.address,
+            accountIndex,
+            addressIndex,
+            addressType,
+            balance,
+            path: addrInfo.path,
+          };
+          results.push(result);
+          onProgress?.(scanned, total, result);
+        } else {
+          onProgress?.(scanned, total, null);
+        }
+      }
+    }
+  }
+
+  return results;
+}

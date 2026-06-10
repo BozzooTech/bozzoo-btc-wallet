@@ -96,7 +96,7 @@ export default function Unlock() {
         <div className="input-group">
           <input
             type="password"
-            className={`input ${error ? 'input--error' : ''}`}
+            className={`input ${error ? 'input-error' : ''}`}
             placeholder="Password"
             value={password}
             onChange={(e) => {
@@ -109,7 +109,7 @@ export default function Unlock() {
         </div>
 
         <button
-          className={`btn btn--primary ${loading ? 'btn--loading' : ''}`}
+          className={`btn btn-primary ${loading ? 'btn-loading' : ''}`}
           style={{ marginTop: '16px', marginBottom: '16px' }}
           onClick={handleUnlock}
           disabled={!password || loading}
@@ -118,7 +118,7 @@ export default function Unlock() {
         </button>
 
         <button
-          className="btn btn--ghost"
+          className="btn btn-ghost"
           style={{ color: 'var(--text-muted)' }}
           onClick={handleReset}
         >

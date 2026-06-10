@@ -10,6 +10,7 @@ export default function Create() {
   const [mnemonic, setMnemonic] = useState<string[]>([]);
   const [saved, setSaved] = useState(false);
   const [addressType, setAddressType] = useState<AddressType>('native_segwit');
+  const [accountCount, setAccountCount] = useState(1);
   
   const [showSeed, setShowSeed] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -23,7 +24,7 @@ export default function Create() {
   const handleContinue = () => {
     state.tempMnemonic = mnemonic.join(' ');
     state.pendingAddressType = addressType;
-    navigate('set-password');
+    navigate('set-password', { accountCount });
   };
 
   const handleCopy = () => {
@@ -35,7 +36,9 @@ export default function Create() {
   return (
     <div className="page" style={{ background: 'var(--bg-base)' }}>
       <header className="page-header">
-        <button className="page-header__back" onClick={goBack}>←</button>
+        <button className="page-header__back" style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center' }} onClick={goBack}>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
         <h2 className="page-header__title">Recovery Phrase</h2>
         <div style={{ width: '34px' }}></div>
       </header>
@@ -50,10 +53,10 @@ export default function Create() {
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <button className="btn btn--ghost btn--sm" onClick={() => setShowSeed(!showSeed)}>
+          <button className="btn btn-ghost btn-sm" onClick={() => setShowSeed(!showSeed)}>
             {showSeed ? 'Hide Phrase' : 'Show Phrase'}
           </button>
-          <button className={`btn btn--ghost btn--sm ${copied ? 'copy-btn--copied' : ''}`} onClick={handleCopy}>
+          <button className={`btn btn-ghost btn-sm ${copied ? 'copy-btn-copied' : ''}`} onClick={handleCopy}>
             {copied ? 'Copied!' : 'Copy All'}
           </button>
         </div>
@@ -77,10 +80,28 @@ export default function Create() {
           <span>I have securely saved these 12 words</span>
         </label>
 
+        <div className="input-group" style={{ marginTop: '16px' }}>
+          <label className="input-label">Number of accounts to create (default: 1)</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <input
+              type="number"
+              className="input"
+              min={1}
+              max={20}
+              value={accountCount}
+              onChange={e => setAccountCount(Math.max(1, Math.min(20, parseInt(e.target.value) || 1)))}
+              style={{ width: '80px' }}
+            />
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+              {accountCount === 1 ? 'Creates 1 account (Account 1)' : `Creates ${accountCount} accounts (Account 1–${accountCount})`}
+            </span>
+          </div>
+        </div>
+
 
 
         <div className="form-footer" style={{ marginTop: '24px' }}>
-          <button className="btn btn--primary" disabled={!saved} onClick={handleContinue}>
+          <button className="btn btn-primary" disabled={!saved} onClick={handleContinue}>
             Continue
           </button>
         </div>

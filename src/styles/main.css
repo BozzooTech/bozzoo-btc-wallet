@@ -359,57 +359,57 @@ screen and (min-height: 601px) {
   pointer-events: none;
 }
 
-.btn--primary {
+.btn-primary {
   background: var(--orange);
   color: #111;
   box-shadow: var(--shadow-sm);
 }
 
-.btn--primary:hover {
+.btn-primary:hover {
   background: var(--orange-light);
   transform: translateY(-1px);
 }
 
-.btn--secondary {
+.btn-secondary {
   background: var(--bg-surface-2);
   color: var(--text-primary);
   border: 1px solid var(--border-strong);
 }
 
-.btn--secondary:hover {
+.btn-secondary:hover {
   background: var(--bg-surface-3);
   border-color: rgba(255, 255, 255, 0.22);
 }
 
-.btn--ghost {
+.btn-ghost {
   background: transparent;
   color: var(--text-secondary);
   border: 1px solid var(--border);
 }
 
-.btn--ghost:hover {
+.btn-ghost:hover {
   color: var(--text-primary);
   background: var(--bg-surface);
 }
 
-.btn--danger {
+.btn-danger {
   background: rgba(255, 68, 99, 0.12);
   color: var(--red);
   border: 1px solid rgba(255, 68, 99, 0.3);
 }
 
-.btn--danger:hover {
+.btn-danger:hover {
   background: rgba(255, 68, 99, 0.22);
 }
 
-.btn--sm {
+.btn-sm {
   padding: 9px var(--s4);
   font-size: 13px;
   border-radius: var(--r-sm);
   width: auto;
 }
 
-.btn--icon {
+.btn-icon {
   padding: 10px;
   width: 40px;
   height: 40px;
@@ -418,11 +418,11 @@ screen and (min-height: 601px) {
 }
 
 /* Loading state on button */
-.btn--loading {
+.btn-loading {
   pointer-events: none;
 }
 
-.btn--loading::after {
+.btn-loading::after {
   content: '';
   width: 16px;
   height: 16px;
@@ -482,13 +482,13 @@ screen and (min-height: 601px) {
   font-family: var(--font);
 }
 
-.input--mono {
+.input-mono {
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.02em;
 }
 
-.input--error {
+.input-error {
   border-color: var(--red) !important;
   box-shadow: 0 0 0 3px rgba(255, 68, 99, 0.15) !important;
 }
@@ -539,12 +539,12 @@ screen and (min-height: 601px) {
   box-shadow: var(--shadow-card);
 }
 
-.card--orange {
+.card-orange {
   background: linear-gradient(135deg, rgba(247, 147, 26, 0.12), rgba(255, 107, 53, 0.06));
   border-color: var(--border-orange);
 }
 
-.card--glass {
+.card-glass {
   background: rgba(26, 26, 26, 0.4);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -575,17 +575,17 @@ screen and (min-height: 601px) {
   font-weight: 600;
 }
 
-.badge--confirmed {
+.badge-confirmed {
   background: rgba(16, 217, 160, 0.12);
   color: var(--green);
 }
 
-.badge--pending {
+.badge-pending {
   background: rgba(255, 184, 0, 0.12);
   color: var(--yellow);
 }
 
-.badge--error {
+.badge-error {
   background: rgba(255, 68, 99, 0.12);
   color: var(--red);
 }
@@ -605,19 +605,19 @@ screen and (min-height: 601px) {
   transition: background var(--trans);
 }
 
-.strength-bar--1 {
+.strength-bar-1 {
   background: var(--red);
 }
 
-.strength-bar--2 {
+.strength-bar-2 {
   background: var(--yellow);
 }
 
-.strength-bar--3 {
+.strength-bar-3 {
   background: var(--orange);
 }
 
-.strength-bar--4 {
+.strength-bar-4 {
   background: var(--green);
 }
 
@@ -693,7 +693,7 @@ screen and (min-height: 601px) {
   color: var(--text-primary);
 }
 
-.addr-tab--active {
+.addr-tab-active {
   background: rgba(255, 255, 255, 0.1);
   color: var(--text-primary);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -806,25 +806,25 @@ screen and (min-height: 601px) {
   margin-top: 1px;
 }
 
-.alert--warning {
+.alert-warning {
   background: rgba(255, 184, 0, 0.1);
   border: 1px solid rgba(255, 184, 0, 0.25);
   color: #FFD870;
 }
 
-.alert--error {
+.alert-error {
   background: rgba(255, 68, 99, 0.1);
   border: 1px solid rgba(255, 68, 99, 0.25);
   color: #FF7A93;
 }
 
-.alert--success {
+.alert-success {
   background: rgba(16, 217, 160, 0.1);
   border: 1px solid rgba(16, 217, 160, 0.25);
   color: var(--green);
 }
 
-.alert--info {
+.alert-info {
   background: rgba(247, 147, 26, 0.08);
   border: 1px solid rgba(247, 147, 26, 0.2);
   color: var(--orange-light);
@@ -857,7 +857,7 @@ screen and (min-height: 601px) {
   background: var(--orange-glow);
 }
 
-.copy-btn--copied {
+.copy-btn-copied {
   color: var(--green) !important;
 }
 
@@ -897,7 +897,7 @@ screen and (min-height: 601px) {
   color: var(--text-secondary);
 }
 
-.footer-nav__item--active {
+.footer-nav__item-active {
   color: var(--orange);
 }
 
@@ -1052,8 +1052,8 @@ screen and (min-height: 601px) {
   font-family: var(--font-mono);
 }
 
-.fee-row--total .fee-row__label,
-.fee-row--total .fee-row__value {
+.fee-row-total .fee-row__label,
+.fee-row-total .fee-row__value {
   color: var(--text-primary);
   font-size: 14px;
   font-weight: 700;
@@ -1145,12 +1145,12 @@ screen and (min-height: 601px) {
   flex-shrink: 0;
 }
 
-.tx-icon--received {
+.tx-icon-received {
   background: rgba(16, 217, 160, 0.12);
   color: var(--green);
 }
 
-.tx-icon--sent {
+.tx-icon-sent {
   background: rgba(255, 68, 99, 0.12);
   color: var(--red);
 }
@@ -1186,11 +1186,11 @@ screen and (min-height: 601px) {
   font-family: var(--font-mono);
 }
 
-.tx-amount__btc--received {
+.tx-amount__btc-received {
   color: var(--green);
 }
 
-.tx-amount__btc--sent {
+.tx-amount__btc-sent {
   color: var(--red);
 }
 
@@ -1245,12 +1245,12 @@ screen and (min-height: 601px) {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
 }
 
-.btn--danger {
+.btn-danger {
   background: rgba(239, 68, 68, 0.1);
   color: #ef4444;
 }
 
-.btn--danger:hover {
+.btn-danger:hover {
   background: #ef4444;
   color: white;
 }

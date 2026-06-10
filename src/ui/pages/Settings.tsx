@@ -75,7 +75,7 @@ export default function Settings() {
 
       <div style={{ padding: '24px 16px', flex: 1, overflowY: 'auto' }}>
 
-        <div className="card card--glass" style={{ padding: 0, overflow: 'hidden', marginBottom: '24px' }}>
+        <div className="card card-glass" style={{ padding: 0, overflow: 'hidden', marginBottom: '24px' }}>
           <div className="settings-list">
 
             <div className="settings-item" onClick={handleViewBackup}>
@@ -118,7 +118,7 @@ export default function Settings() {
         </div>
 
         <h3 className="section-label" style={{ color: 'var(--red)', marginTop: '32px' }}>Danger Zone</h3>
-        <div className="card card--glass" style={{ padding: 0, overflow: 'hidden', border: '1px solid var(--red)' }}>
+        <div className="card card-glass" style={{ padding: 0, overflow: 'hidden', border: '1px solid var(--red)' }}>
           <div className="settings-list">
             <div className="settings-item" onClick={() => { setModalType('delete'); setModalPassword(''); setModalError(''); }}>
               <div className="settings-item__icon" style={{ color: 'var(--red)' }}><TrashIcon /></div>
@@ -133,9 +133,9 @@ export default function Settings() {
         <div style={{ textAlign: 'center', marginTop: '32px', color: 'var(--text-muted)', fontSize: '11px', lineHeight: '1.6' }}>
           <div style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>Bozzoo Wallet v1.0.0</div>
           <div>Open-Source | Non-Custodial</div>
-          {/* <a href="https://bozzoo.qzz.io/wallet" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--orange)', textDecoration: 'none', display: 'inline-block', marginTop: '8px' }}>
+          <a href="https://github.com/BozzooTech/bozzoo-btc-wallet" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--orange)', textDecoration: 'none', display: 'inline-block', marginTop: '8px' }}>
             View on GitHub
-          </a> */}
+          </a>
         </div>
 
       </div>

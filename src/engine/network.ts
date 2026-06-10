@@ -74,6 +74,51 @@ export async function getUTXOs(address: string): Promise<UTXO[]> {
   }
 }
 
+/**
+ * Bulk fetches balances for an array of addresses using blockchain.info.
+ * This completely avoids rate limits for scanning large derivations.
+ * Returns a map of address -> balance in sats.
+ */
+export async function getAddressesBalances(addresses: string[]): Promise<Record<string, number>> {
+  const result: Record<string, number> = {};
+  if (!addresses.length) return result;
+
+  const CHUNK_SIZE = 50;
+  for (let i = 0; i < addresses.length; i += CHUNK_SIZE) {
+    const chunk = addresses.slice(i, i + CHUNK_SIZE);
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        const res = await fetch(`https://blockchain.info/balance?active=${chunk.join('|')}`);
+        if (res.status === 429) {
+          await new Promise(r => setTimeout(r, 2000)); // wait 2s on rate limit
+          retries--;
+          continue;
+        }
+        if (!res.ok) break;
+        const data = await res.json();
+        for (const addr of chunk) {
+          if (data[addr] && typeof data[addr].final_balance === 'number') {
+            result[addr] = data[addr].final_balance;
+          } else {
+            result[addr] = 0;
+          }
+        }
+        break; // Success, break retry loop
+      } catch {
+        retries--;
+        await new Promise(r => setTimeout(r, 1000));
+      }
+    }
+    // If all retries fail, fallback to 0
+    if (retries === 0) {
+      for (const addr of chunk) if (result[addr] === undefined) result[addr] = 0;
+    }
+  }
+  return result;
+}
+
+
 export async function getTransactionHistory(address: string): Promise<Transaction[]> {
   assertSafeAddressParam(address);
   try {

@@ -44,7 +44,7 @@ export default function GlobalConfirm() {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content card card--glass" style={{ animation: 'pageIn 0.2s ease' }}>
+      <div className="modal-content card card-glass" style={{ animation: 'pageIn 0.2s ease' }}>
         <h3 style={{ marginBottom: '8px', fontSize: '18px', color: danger ? 'var(--red)' : 'var(--text-primary)' }}>
           {title}
         </h3>
@@ -53,10 +53,10 @@ export default function GlobalConfirm() {
         </p>
         
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-          <button className="btn btn--ghost" onClick={handleCancel}>
+          <button className="btn btn-ghost" onClick={handleCancel}>
             {cancelText}
           </button>
-          <button className={`btn ${danger ? 'btn--danger' : 'btn--primary'}`} onClick={handleConfirm}>
+          <button className={`btn ${danger ? 'btn-danger' : 'btn-primary'}`} onClick={handleConfirm}>
             {confirmText}
           </button>
         </div>

@@ -35,9 +35,10 @@
     "https://mempool.space/*",
     "https://blockchain.info/*",
     "https://api.binance.com/*",
-    "https://mempool.ninja/*"
+    "https://mempool.ninja/*",
+    "https://trocador.app/*"
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'"
+    "extension_pages": "script-src 'self'; object-src 'self';"
   }
 }

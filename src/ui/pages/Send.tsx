@@ -4,7 +4,7 @@ import TopNav from '../components/TopNav';
 import { state } from '../state';
 import { getAddressBalance, formatBtc, btcToSats, formatSats, getFeeRates, getBtcPrice } from '../../engine/network';
 import { deriveAddress } from '../../engine/wallet';
-import { buildAndBroadcast, estimateFees, isValidBitcoinAddress, DONATION_ADDRESS } from '../../engine/transaction';
+import { buildAndBroadcast, estimateFees, isValidBitcoinAddress, DONATION_ADDRESS, getDustThreshold } from '../../engine/transaction';
 import { FeeSpeed, FeeRates, UTXO } from '../../types';
 import ConfirmModal from '../components/ConfirmModal';
 import GlobalHeader from '../components/GlobalHeader';
@@ -130,14 +130,16 @@ export default function Send() {
           amountSats: isSendMax ? 0 : (useSats ? parseInt(r.amountStr) || 0 : btcToSats(r.amountStr))
         }));
 
-        const minSats = btcPriceUsd ? Math.ceil((0.30 / btcPriceUsd) * 1e8) : 546;
         const seenAddresses = new Set<string>();
         for (const r of parsedRecipients) {
           if (!isValidBitcoinAddress(r.address)) throw new Error(`Invalid Bitcoin address: ${r.address}`);
           if (r.address === currentAddress) throw new Error('Cannot send to your own address.');
           if (seenAddresses.has(r.address)) throw new Error(`Duplicate recipient address.`);
-          if (r.amountSats > 0 && r.amountSats < minSats) {
-            throw new Error(`Amount too small. Minimum required is $0.30 (${minSats} sats / ${(minSats / 1e8).toFixed(8)} BTC)`);
+          
+          const outputType = r.address.startsWith("bc1p") ? "taproot" : r.address.startsWith("bc1q") ? "native_segwit" : r.address.startsWith("3") ? "nested_segwit" : "legacy";
+          const dustLimit = getDustThreshold(outputType);
+          if (r.amountSats > 0 && r.amountSats <= dustLimit) {
+            throw new Error(`Amount too small to send. Minimum output required for this address type is ${dustLimit + 1} sats.`);
           }
           seenAddresses.add(r.address);
         }
@@ -157,8 +159,7 @@ export default function Send() {
       } catch (err: any) {
         let msg = err.message || 'Fee estimation failed';
         if (msg.includes('dust')) {
-          const minSats = btcPriceUsd ? Math.ceil((0.30 / btcPriceUsd) * 1e8) : 546;
-          msg = `Amount too small. Minimum required is $0.30 (${minSats} sats / ${(minSats / 1e8).toFixed(8)} BTC)`;
+          msg = `Amount too small to send. The final amount after fees falls below the Bitcoin network dust limit.`;
         }
         setErrorMsg(msg);
         setFeeEstimate(null);
@@ -205,14 +206,16 @@ export default function Send() {
         amountSats: isSendMax ? 0 : (useSats ? parseInt(r.amountStr) || 0 : btcToSats(r.amountStr))
       }));
 
-      const minSats = btcPriceUsd ? Math.ceil((0.30 / btcPriceUsd) * 1e8) : 546;
       const seenAddresses = new Set<string>();
       for (const r of parsedRecipients) {
         if (!isValidBitcoinAddress(r.address)) throw new Error(`Invalid Bitcoin address: ${r.address}`);
         if (r.address === currentAddress) throw new Error('Cannot send to your own address.');
         if (seenAddresses.has(r.address)) throw new Error(`Duplicate recipient address.`);
-        if (r.amountSats > 0 && r.amountSats < minSats) {
-          throw new Error(`Amount too small. Minimum required is $0.30 (${minSats} sats / ${(minSats / 1e8).toFixed(8)} BTC)`);
+        
+        const outputType = r.address.startsWith("bc1p") ? "taproot" : r.address.startsWith("bc1q") ? "native_segwit" : r.address.startsWith("3") ? "nested_segwit" : "legacy";
+        const dustLimit = getDustThreshold(outputType);
+        if (r.amountSats > 0 && r.amountSats <= dustLimit) {
+          throw new Error(`Amount too small to send. Minimum output required for this address type is ${dustLimit + 1} sats.`);
         }
         seenAddresses.add(r.address);
       }
@@ -245,8 +248,7 @@ export default function Send() {
     } catch (err: any) {
       let msg = err.message || 'Transaction failed';
       if (msg.includes('dust')) {
-        const minSats = btcPriceUsd ? Math.ceil((0.30 / btcPriceUsd) * 1e8) : 546;
-        msg = `Transaction rejected: Amount too small. Minimum required is $0.30 (${minSats} sats / ${(minSats / 1e8).toFixed(8)} BTC)`;
+        msg = `Transaction rejected: The final output amount falls below the network dust limit.`;
       }
       setModalError(msg);
     } finally {
@@ -279,15 +281,15 @@ export default function Send() {
       )}
 
       <div style={{ padding: '24px 16px', flex: 1, overflowY: 'auto' }}>
-        <div className="card card--glass">
+        <div className="card card-glass">
 
           {/* Single / Multi tabs */}
           <div className="addr-tabs" style={{ marginBottom: '16px' }}>
-            <button className={`addr-tab ${sendMode === 'single' ? 'addr-tab--active' : ''}`}
+            <button className={`addr-tab ${sendMode === 'single' ? 'addr-tab-active' : ''}`}
               onClick={() => { setSendMode('single'); setRecipients([{ address: '', amountStr: '' }]); setIsSendMax(false); }}>
               Single
             </button>
-            <button className={`addr-tab ${sendMode === 'multi' ? 'addr-tab--active' : ''}`}
+            <button className={`addr-tab ${sendMode === 'multi' ? 'addr-tab-active' : ''}`}
               onClick={() => { setSendMode('multi'); setRecipients([{ address: '', amountStr: '' }]); setIsSendMax(false); }}>
               Multiple
             </button>
@@ -311,13 +313,13 @@ export default function Send() {
               )}
               <div className="input-group" style={{ marginBottom: '8px' }}>
                 <label className="input-label">Destination Address</label>
-                <input className="input input--mono" placeholder="bc1q..." value={recipient.address}
+                <input className="input input-mono" placeholder="bc1q..." value={recipient.address}
                   onChange={e => updateRecipient(idx, 'address', e.target.value)} />
               </div>
               <div className="input-group">
                 <label className="input-label">Amount ({useSats ? 'sats' : 'BTC'})</label>
                 <div className="input-with-action">
-                  <input className={`input ${isInsufficient ? 'input--error' : ''}`} type="text" inputMode="decimal" placeholder="0.00"
+                  <input className={`input ${isInsufficient ? 'input-error' : ''}`} type="text" inputMode="decimal" placeholder="0.00"
                     value={recipient.amountStr} disabled={isSendMax && sendMode === 'single'}
                     onChange={e => {
                       let val = e.target.value.replace(/[^0-9.]/g, '');
@@ -331,7 +333,7 @@ export default function Send() {
           ))}
 
           {sendMode === 'multi' && (
-            <button className="btn btn--outline" style={{ marginBottom: '16px', width: '100%', padding: '8px' }} onClick={addRecipient}>+ Add Recipient</button>
+            <button className="btn btn-outline" style={{ marginBottom: '16px', width: '100%', padding: '8px' }} onClick={addRecipient}>+ Add Recipient</button>
           )}
 
           {isInsufficient && (
@@ -346,7 +348,7 @@ export default function Send() {
                 const rateMap = { slow: feeRates?.hourFee ?? '...', medium: feeRates?.halfHourFee ?? '...', fast: feeRates?.fastestFee ?? '...' };
                 const nameMap = { slow: 'Slow', medium: 'Medium', fast: 'Fast' };
                 return (
-                  <button key={speed} className={`addr-tab ${feeSpeed === speed ? 'addr-tab--active' : ''}`}
+                  <button key={speed} className={`addr-tab ${feeSpeed === speed ? 'addr-tab-active' : ''}`}
                     onClick={() => setFeeSpeed(speed)}
                     style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '8px' }}>
                     <div className="addr-tab__label">{nameMap[speed]}</div>
@@ -399,9 +401,9 @@ export default function Send() {
 
         {/* Donation box */}
         {showDonationBox && (
-          <div className="card card--glass" style={{ marginTop: '16px', border: '1px solid rgba(247,148,26,0.3)' }}>
+          <div className="card card-glass" style={{ marginTop: '16px', border: '1px solid rgba(247,148,26,0.3)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-              <span style={{ fontSize: '18px' }}>&#x2764;</span>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="var(--red)" stroke="var(--red)" strokeWidth="2" style={{marginRight: '8px'}}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
               <div>
                 <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-primary)' }}>Donate</div>
                 <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>Help add features & improve security - completely optional</div>
@@ -445,7 +447,7 @@ export default function Send() {
         {/* Fee breakdown */}
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}>
           {(feeEstimate || isEstimating || errorMsg) && (
-            <div className="card card--glass" style={{ marginTop: '16px', opacity: isEstimating ? 0.5 : 1, transition: 'opacity 0.2s', pointerEvents: isEstimating ? 'none' : 'auto' }}>
+            <div className="card card-glass" style={{ marginTop: '16px', opacity: isEstimating ? 0.5 : 1, transition: 'opacity 0.2s', pointerEvents: isEstimating ? 'none' : 'auto' }}>
               <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>Transaction Breakdown</span>
                 {isEstimating && <div className="spinner" style={{ width: '14px', height: '14px', borderWidth: '2px', borderColor: 'var(--orange) transparent var(--orange) transparent' }}></div>}
@@ -505,7 +507,7 @@ export default function Send() {
           )}
         </div>
 
-        <button className={`btn btn--primary ${isSending ? 'btn--loading' : ''}`}
+        <button className={`btn btn-primary ${isSending ? 'btn-loading' : ''}`}
           style={{ marginTop: '24px' }}
           disabled={!feeEstimate?.canAfford || isInsufficient || isEstimating || recipients.every(r => !r.address)}
           onClick={handleSend}>
@@ -533,7 +535,10 @@ export default function Send() {
             {donationEnabled && donationSats > 0 && (
               <div style={{ paddingBottom: '8px', borderBottom: '1px solid var(--border)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
-                  <span style={{ color: 'var(--orange)' }}>☕ Donation:</span>
+                  <span style={{ color: 'var(--orange)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
+                    Donation:
+                  </span>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px' }}>{DONATION_ADDRESS.slice(0, 8)}...{DONATION_ADDRESS.slice(-6)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>

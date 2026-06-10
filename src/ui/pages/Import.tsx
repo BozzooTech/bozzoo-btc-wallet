@@ -12,6 +12,7 @@ export default function Import() {
   const [addressType, setAddressType] = useState<AddressType>('native_segwit');
   const [showSeed, setShowSeed] = useState(false);
   const [is24Words, setIs24Words] = useState(false);
+  const [accountCount, setAccountCount] = useState(1);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleWordChange = (index: number, value: string) => {
@@ -77,13 +78,15 @@ export default function Import() {
     setError('');
     state.tempMnemonic = phrase;
     state.pendingAddressType = addressType;
-    navigate('set-password');
+    navigate('set-password', { accountCount });
   };
 
   return (
     <div className="page" style={{ background: 'var(--bg-base)' }}>
       <header className="page-header">
-        <button className="page-header__back" onClick={goBack}>←</button>
+        <button className="page-header__back" style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center' }} onClick={goBack}>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
         <h2 className="page-header__title">Import Wallet</h2>
         <div style={{ width: '34px' }}></div>
       </header>
@@ -101,10 +104,10 @@ export default function Import() {
 
         <div className="input-group">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <button className="btn btn--ghost btn--sm" style={{ padding: '2px 8px' }} onClick={toggleLength}>
+            <button className="btn btn-ghost btn-sm" style={{ padding: '2px 8px' }} onClick={toggleLength}>
               {is24Words ? 'Use 12 Words' : 'Use 24 Words'}
             </button>
-            <button className="btn btn--ghost btn--sm" style={{ padding: '2px 8px' }} onClick={() => setShowSeed(!showSeed)}>
+            <button className="btn btn-ghost btn-sm" style={{ padding: '2px 8px' }} onClick={() => setShowSeed(!showSeed)}>
               {showSeed ? 'Hide' : 'Show'}
             </button>
           </div>
@@ -117,7 +120,7 @@ export default function Import() {
                 </span>
                 <input
                   ref={el => { inputRefs.current[i] = el; }}
-                  className="input input--mono"
+                  className="input input-mono"
                   style={{ 
                     border: 'none', 
                     background: 'transparent', 
@@ -134,6 +137,12 @@ export default function Import() {
                       e.preventDefault();
                       inputRefs.current[i - 1]?.focus();
                     }
+                    if (e.key === ' ' || e.code === 'Space') {
+                      e.preventDefault();
+                      if (i < words.length - 1) {
+                        inputRefs.current[i + 1]?.focus();
+                      }
+                    }
                   }}
                   autoComplete="off"
                   autoCorrect="off"
@@ -147,7 +156,24 @@ export default function Import() {
         </div>
 
         <div className="form-footer" style={{ marginTop: '24px' }}>
-          <button className="btn btn--primary" onClick={handleContinue} disabled={words.some(w => !w)}>
+          <div className="input-group" style={{ marginBottom: '16px' }}>
+            <label className="input-label">Number of accounts to create (default: 1)</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input
+                type="number"
+                className="input"
+                min={1}
+                max={20}
+                value={accountCount}
+                onChange={e => setAccountCount(Math.max(1, Math.min(20, parseInt(e.target.value) || 1)))}
+                style={{ width: '80px' }}
+              />
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                {accountCount === 1 ? 'Creates 1 account (Account 1)' : `Creates ${accountCount} accounts (Account 1–${accountCount})`}
+              </span>
+            </div>
+          </div>
+          <button className="btn btn-primary" onClick={handleContinue} disabled={words.some(w => !w)}>
             Restore Wallet
           </button>
         </div>

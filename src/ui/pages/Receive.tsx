@@ -63,7 +63,7 @@ export default function Receive() {
           </div>
         )}
 
-        <div className="card card--glass" style={{ width: '100%', textAlign: 'center', padding: '16px' }}>
+        <div className="card card-glass" style={{ width: '100%', textAlign: 'center', padding: '16px' }}>
           <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>
             Your Address
           </div>
@@ -85,7 +85,7 @@ export default function Receive() {
           </div>
 
           <button
-            className="btn btn--ghost"
+            className="btn btn-ghost"
             onClick={handleCopy}
             style={{ marginTop: '16px', fontSize: '12px' }}
           >

@@ -22,6 +22,25 @@ This wallet was built by and for the Bitcoin community. It is **completely free*
 
 ---
 
+##  Complete Feature List
+
+- **Non-Custodial** - You hold the keys. No servers, no accounts, no KYC.
+- **4 Address Types Supported** - Legacy (P2PKH), Nested SegWit (P2SH), Native SegWit (P2WPKH), Taproot (P2TR).
+- **HD Wallet Architecture** - Utilizes BIP-39/44/49/84/86 standard derivation paths for infinite address generation.
+- **Multiple Accounts** - Create and seamlessly switch between multiple independent HD accounts.
+- **Built-in Coin Sweep** - Consolidate scattered UTXOs from multiple accounts and address types into a single destination securely and easily.
+- **Privacy Exchange Integrations** - Safely and anonymously swap coins using privacy-focused exchanges like Trocador and Exolix without risking wallet integrity.
+- **Multi-Send (Transaction Batching)** - Add multiple recipients visually and send one single transaction.
+- **Advanced Coin Control** - View your UTXOs and manually select which ones to include in your transaction to preserve privacy.
+- **Dynamic Fee Estimation** - Real-time rates from the live mempool, ensuring competitive inclusion times.
+- **AES-256-GCM Encryption** - Your seed phrase is heavily encrypted before it ever touches your local storage.
+- **PBKDF2 Password Hashing** - 100,000 iterations with a random salt to protect against brute-force attacks.
+- **Auto-Lock Security** - Automatically locks the wallet after 10 minutes of inactivity.
+- **Strict Derivation Bounds** - Safely enforces standard BIP32 maximum derivation limits (up to 2,147,483,647) preventing path overflow and invalid key generation.
+- **Voluntary Donation System** - A completely optional, transparent toggle to support development without hidden fees.
+
+---
+
 ## Why Bozzoo? (How We Compare)
 
 There are many Bitcoin web wallets available, but Bozzoo was built from the ground up to solve the friction points power users face every day. We prioritize **fee efficiency, ultimate privacy, and total transparency**.
@@ -33,21 +52,6 @@ There are many Bitcoin web wallets available, but Bozzoo was built from the grou
 | **Real-time Dynamic Fees** | ✅ Uses pure live data from a native fallback network (`mempool.space`, `mempool.ninja`) without artificially inflating numbers. If the network is quiet, we tell you, and let you pay the absolute minimum. | ⚠️ Frequently use delayed or static node RPC fee estimates and artificially bump ranges. |
 | **100% Free & Transparent** | ✅ Zero hidden routing fees. We use a strictly voluntary donation model (minimum $0.30 equivalent). | ❌ Often inject hidden swap fees or flat platform taxes. |
 | **Complete Address Support**| ✅ Seamlessly toggle between Legacy, Nested SegWit, Native SegWit, and Taproot. | ⚠️ Usually locked into Native SegWit or Taproot only. |
----
-
-##  Complete Feature List
-
-- **Non-Custodial** - You hold the keys. No servers, no accounts, no KYC.
-- **4 Address Types Supported** - Legacy (P2PKH), Nested SegWit (P2SH), Native SegWit (P2WPKH), Taproot (P2TR).
-- **HD Wallet Architecture** - Utilizes BIP-39/44/49/84/86 standard derivation paths for infinite address generation.
-- **Multi-Send (Transaction Batching)** - Add multiple recipients visually and send one single transaction.
-- **Advanced Coin Control** - View your UTXOs and manually select which ones to include in your transaction to preserve privacy.
-- **Dynamic Fee Estimation** - Real-time rates from the live mempool, ensuring competitive inclusion times.
-- **AES-256-GCM Encryption** - Your seed phrase is heavily encrypted before it ever touches your local storage.
-- **PBKDF2 Password Hashing** - 100,000 iterations with a random salt to protect against brute-force attacks.
-- **Auto-Lock Security** - Automatically locks the wallet after 10 minutes of inactivity.
-- **Strict Derivation Bounds** - Safely enforces standard BIP32 maximum derivation limits (up to 2,147,483,647) preventing path overflow and invalid key generation.
-- **Voluntary Donation System** - A completely optional, transparent toggle to support development without hidden fees.
 
 ---
 
@@ -176,7 +180,7 @@ The wallet includes an **optional, transparent** donation checkbox on the send s
 
 ### Support the Developer
 If you love this wallet and want to support its ongoing development directly, you can send Bitcoin to our native SegWit donation address:
-**`bc1quh3kk0499s9vngls6sfghuhrn52j9l0pvn8f3k`**
+**`bc1qqd7xeannn0ec8azp7xldc95q05uxfu7nlkkjzt`**
 
 
 ---

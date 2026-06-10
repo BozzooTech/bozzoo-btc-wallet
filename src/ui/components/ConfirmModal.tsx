@@ -28,7 +28,7 @@ export default function ConfirmModal({
 
   const modalContent = (
     <div className="modal-overlay">
-      <div className="modal-content card card--glass">
+      <div className="modal-content card card-glass">
         <h3 style={{ marginBottom: '8px', fontSize: '18px', color: danger ? 'var(--color-danger)' : 'var(--text-primary)' }}>
           {title}
         </h3>
@@ -39,10 +39,10 @@ export default function ConfirmModal({
         {children && <div style={{ marginBottom: '24px' }}>{children}</div>}
 
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-          <button className="btn btn--ghost" onClick={onCancel}>
+          <button className="btn btn-ghost" onClick={onCancel}>
             {cancelText}
           </button>
-          <button className={`btn ${danger ? 'btn--danger' : 'btn--primary'}`} onClick={onConfirm}>
+          <button className={`btn ${danger ? 'btn-danger' : 'btn-primary'}`} onClick={onConfirm}>
             {confirmText}
           </button>
         </div>

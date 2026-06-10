@@ -2,6 +2,7 @@ import React, { useContext, useState, useRef, useEffect } from 'react';
 import { AppContext } from '../App';
 import { state } from '../state';
 import { getWalletConfig, saveWalletConfig } from '../../engine/storage';
+import { deriveAddress } from '../../engine/wallet';
 import { MaximizeIcon, ChevronDownIcon, PlusIcon, MinusIcon } from './Icons';
 import ConfirmModal from './ConfirmModal';
 
@@ -32,6 +33,27 @@ export default function GlobalHeader({ onAccountChange, onRefresh }: GlobalHeade
   const [modalPassword, setModalPassword] = useState('');
   const [modalError, setModalError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
+  const [accountsToCreate, setAccountsToCreate] = useState(1);
+  const [activeAddress, setActiveAddress] = useState('');
+
+  useEffect(() => {
+    const loadAddress = async () => {
+      try {
+        const active = state.accounts?.find(a => a.id === state.activeAccountId);
+        const accIndex = active?.accountIndex ?? 0;
+        const xpub = state.unlockedXpubs[state.activeAccountId!]?.[state.currentAddressType];
+        if (!xpub) {
+          setActiveAddress('');
+          return;
+        }
+        const addrInfo = await deriveAddress(xpub, state.currentAddressType, state.currentAddressIndex, accIndex);
+        setActiveAddress(addrInfo.address);
+      } catch (err) {
+        console.error('Failed to load active address', err);
+      }
+    };
+    loadAddress();
+  }, [state.activeAccountId, state.currentAddressType, state.currentAddressIndex, forceRender]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -110,6 +132,7 @@ export default function GlobalHeader({ onAccountChange, onRefresh }: GlobalHeade
     setShowPasswordPrompt(true);
     setModalPassword('');
     setModalError('');
+    setAccountsToCreate(1);
   };
 
   const executeAddAccount = async () => {
@@ -138,41 +161,64 @@ export default function GlobalHeader({ onAccountChange, onRefresh }: GlobalHeade
 
       if (!decryptedSeed) throw new Error('Failed to decrypt wallet');
 
-      const subAccounts = state.accounts.filter(a => a.id === rootId || a.parentId === rootId);
-      const newId = crypto.randomUUID();
-      const newAccIndex = Math.max(...subAccounts.map(a => a.accountIndex ?? 0)) + 1;
+      // All accounts belonging to this root (root + sub-accounts)
+      const groupAccounts = state.accounts.filter(
+        a => a.id === rootId || a.parentId === rootId
+      );
 
-      // Derive xpubs for the new account BEFORE wiping the seed!
-      const newXpubs: Record<string, string> = {};
-      for (const type of ['native_segwit', 'taproot', 'nested_segwit', 'legacy'] as const) {
-        newXpubs[type] = await deriveAccountXpub(decryptedSeed, type as any, newAccIndex);
+      // Find the highest existing account index so we always continue from it
+      const highestExistingIndex = Math.max(...groupAccounts.map(a => a.accountIndex ?? 0));
+
+      const count = Math.max(1, Math.min(20, accountsToCreate));
+      const newAccounts: typeof state.accounts = [];
+      const newXpubsMap: Record<string, Record<string, string>> = {};
+      const TYPES = ['native_segwit', 'taproot', 'nested_segwit', 'legacy'] as const;
+
+      for (let i = 0; i < count; i++) {
+        const newAccIndex = highestExistingIndex + 1 + i;
+        const newId = crypto.randomUUID();
+
+        // Derive xpubs for new account BEFORE wiping seed
+        const newXpubs: Record<string, string> = {};
+        for (const type of TYPES) {
+          newXpubs[type] = await deriveAccountXpub(decryptedSeed, type as any, newAccIndex);
+        }
+
+        newAccounts.push({
+          id: newId,
+          name: `Account ${newAccIndex + 1}`,
+          addressType: rootWallet.addressType || 'native_segwit',
+          accountIndex: newAccIndex,
+          parentId: rootId,
+        });
+        newXpubsMap[newId] = newXpubs;
       }
 
-      // Wipe the seed immediately
+      // Wipe seed immediately after all derivations
       decryptedSeed = '0'.repeat(128);
 
-      const newAcc = {
-        id: newId,
-        name: `Account ${newAccIndex + 1}`,
-        addressType: rootWallet.addressType || 'native_segwit',
-        accountIndex: newAccIndex,
-        parentId: rootId
-      };
+      // Apply to state
+      state.accounts = [...state.accounts, ...newAccounts];
 
-      state.accounts = [...state.accounts, newAcc];
+      // Persist
       const config = await getWalletConfig();
-      config.accounts = [...config.accounts, newAcc];
-      config.activeAccountId = newId;
+      config.accounts = [...config.accounts, ...newAccounts];
+
+      // Switch to the last newly created account
+      const lastNewAcc = newAccounts[newAccounts.length - 1];
+      config.activeAccountId = lastNewAcc.id;
       await saveWalletConfig(config);
 
-      state.activeAccountId = newId;
+      state.activeAccountId = lastNewAcc.id;
       state.currentAddressIndex = 0;
 
-      // Sync the new xpubs into state
+      // Sync all new xpubs into state
       if (!state.unlockedXpubs) state.unlockedXpubs = {};
-      state.unlockedXpubs[newId] = newXpubs;
+      for (const [id, xpubs] of Object.entries(newXpubsMap)) {
+        state.unlockedXpubs[id] = xpubs;
+      }
 
-      // Save the updated session (with new xpubs) to background
+      // Save updated session
       const { saveSessionToBackground } = await import('../state');
       await saveSessionToBackground();
 
@@ -227,17 +273,37 @@ export default function GlobalHeader({ onAccountChange, onRefresh }: GlobalHeade
   return (
     <header className="global-header" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '12px', padding: '12px 16px', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)' }}>
       {/* Row 1 */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--bg-surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, flexWrap: 'wrap', paddingRight: '8px' }}>
+          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--bg-surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <img src="assets/icon.png" alt="Bozzoo-Logo" style={{ width: '100%', filter: 'drop-shadow(0 0px 1px rgba(247, 148, 26, 0.68))' }} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '4px', flex: 1, minWidth: '150px', alignItems: 'center' }}>
+            {/* <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 700 }}>
+                {(() => {
+                  const active = state.accounts?.find(a => a.id === state.activeAccountId);
+                  const root = state.accounts?.find(a => a.id === (active?.parentId || active?.id));
+                  return root?.name || 'Wallet';
+                })()}
+              </span>
+              <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', background: 'var(--bg-surface-2)', padding: '2px 6px', borderRadius: '4px' }}>
+                Acc {activeAccount ? (activeAccount.accountIndex ?? 0) + 1 : 1}
+              </span>
+              <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', background: 'var(--bg-surface-2)', padding: '2px 6px', borderRadius: '4px' }}>
+                Idx {state.currentAddressIndex}
+              </span>
+            </div> */}
+            <span style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', color: 'var(--orange)', fontWeight: 700, wordBreak: 'break-all', marginTop: '6px', lineHeight: 1.4, textAlign: 'center' }}>
+              {activeAddress || 'Loading...'}
+            </span>
           </div>
         </div>
 
         {/* Refresh & Fullscreen */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button
-            className="btn btn--ghost btn--sm"
+            className="btn btn-ghost btn-sm"
             style={{ padding: '6px', borderRadius: '50%', color: 'var(--text-secondary)' }}
             onClick={onRefresh}
             title="Refresh Balance"
@@ -248,7 +314,7 @@ export default function GlobalHeader({ onAccountChange, onRefresh }: GlobalHeade
           </button>
 
           <button
-            className="btn btn--ghost btn--sm"
+            className="btn btn-ghost btn-sm"
             style={{ padding: '6px', borderRadius: '50%', color: 'var(--text-secondary)' }}
             onClick={() => window.open(window.location.href, '_blank')}
             title="Open Full Screen"
@@ -331,7 +397,7 @@ export default function GlobalHeader({ onAccountChange, onRefresh }: GlobalHeade
                       onChange={e => setNewName(e.target.value)}
                       autoFocus
                     />
-                    <button className="btn btn--primary btn--sm" style={{ padding: '4px 8px' }} onClick={handleRename}>Save</button>
+                    <button className="btn btn-primary btn-sm" style={{ padding: '4px 8px' }} onClick={handleRename}>Save</button>
                   </div>
                 )}
               </div>
@@ -409,7 +475,7 @@ export default function GlobalHeader({ onAccountChange, onRefresh }: GlobalHeade
         {/* Index Jumper */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px', flex: 1, minWidth: 0, borderRight: '1px solid var(--border)' }}>
           <button
-            className="btn btn--ghost btn--sm"
+            className="btn btn-ghost btn-sm"
             style={{ padding: '0 4px', fontSize: '14px', minHeight: '26px' }}
             onClick={() => setAddressIndex(Math.max(0, state.currentAddressIndex - 1))}
             disabled={state.currentAddressIndex === 0}
@@ -424,10 +490,16 @@ export default function GlobalHeader({ onAccountChange, onRefresh }: GlobalHeade
             max={MAX_BIP32_INDEX}
             value={state.currentAddressIndex}
             onChange={(e) => {
-              const val = parseInt(e.target.value, 10);
-              if (!isNaN(val) && val >= 0) setAddressIndex(val);
+              if (e.target.value === '') {
+                setAddressIndex(0);
+              } else {
+                let val = parseInt(e.target.value, 10) || 0;
+                if (val > MAX_BIP32_INDEX) val = MAX_BIP32_INDEX;
+                setAddressIndex(val);
+                e.target.value = val.toString();
+              }
             }}
-            className="input input--mono"
+            className="input input-mono"
             style={{
               padding: '0 2px', fontSize: '12px', width: '40px', textAlign: 'center',
               minHeight: '26px', background: 'transparent', border: 'none'
@@ -435,7 +507,7 @@ export default function GlobalHeader({ onAccountChange, onRefresh }: GlobalHeade
             title="Address Number"
           />
           <button
-            className="btn btn--ghost btn--sm"
+            className="btn btn-ghost btn-sm"
             style={{ padding: '0 4px', fontSize: '14px', minHeight: '26px' }}
             onClick={() => setAddressIndex(state.currentAddressIndex + 1)}
             disabled={state.currentAddressIndex >= MAX_BIP32_INDEX}
@@ -502,22 +574,50 @@ export default function GlobalHeader({ onAccountChange, onRefresh }: GlobalHeade
 
       <ConfirmModal
         isOpen={showPasswordPrompt}
-        title="Add Account"
-        message="Enter your password to derive keys for a new account."
-        confirmText={isVerifying ? 'Verifying...' : 'Create Account'}
+        title="Add Accounts"
+        message="Enter your password to derive keys for new account(s)."
+        confirmText={isVerifying ? 'Creating...' : `Create ${accountsToCreate} Account${accountsToCreate > 1 ? 's' : ''}`}
         onConfirm={executeAddAccount}
         onCancel={() => { setShowPasswordPrompt(false); setModalPassword(''); }}
       >
-        <div style={{ marginTop: '16px' }}>
-          <input
-            type="password"
-            className="input"
-            placeholder="App Password"
-            value={modalPassword}
-            onChange={(e) => { setModalPassword(e.target.value); setModalError(''); }}
-            disabled={isVerifying}
-          />
-          {modalError && <div style={{ color: 'var(--red)', fontSize: '12px', marginTop: '8px' }}>{modalError}</div>}
+        <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="input-group" style={{ marginBottom: 0 }}>
+            <label className="input-label">Number of accounts to create</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input
+                type="number"
+                className="input"
+                min={1}
+                max={20}
+                value={accountsToCreate}
+                onChange={e => setAccountsToCreate(Math.max(1, Math.min(20, parseInt(e.target.value) || 1)))}
+                disabled={isVerifying}
+                style={{ width: '80px' }}
+              />
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                {(() => {
+                  const rootId = activeAccount?.parentId || activeAccount?.id;
+                  const groupAccounts = state.accounts.filter(a => a.id === rootId || a.parentId === rootId);
+                  const highest = Math.max(...groupAccounts.map(a => a.accountIndex ?? 0));
+                  const startIdx = highest + 1;
+                  const endIdx = startIdx + accountsToCreate - 1;
+                  return `Will create Account${accountsToCreate > 1 ? 's' : ''} ${startIdx + 1}${accountsToCreate > 1 ? `–${endIdx + 1}` : ''}`;
+                })()}
+              </span>
+            </div>
+          </div>
+          <div className="input-group" style={{ marginBottom: 0 }}>
+            <label className="input-label">Password</label>
+            <input
+              type="password"
+              className="input"
+              placeholder="App Password"
+              value={modalPassword}
+              onChange={(e) => { setModalPassword(e.target.value); setModalError(''); }}
+              disabled={isVerifying}
+            />
+          </div>
+          {modalError && <div style={{ color: 'var(--red)', fontSize: '12px' }}>{modalError}</div>}
         </div>
       </ConfirmModal>
 
