@@ -5,6 +5,9 @@ const features = [
   { title: 'Non-Custodial', desc: 'You hold the keys. No servers, no accounts, no KYC.' },
   { title: '4 Address Types Supported', desc: 'Legacy (P2PKH), Nested SegWit (P2SH), Native SegWit (P2WPKH), Taproot (P2TR).' },
   { title: 'HD Wallet Architecture', desc: 'Utilizes BIP-39/44/49/84/86 standard derivation paths for infinite address generation.' },
+  { title: 'Multiple Accounts', desc: 'Create and seamlessly switch between multiple independent HD accounts.' },
+  { title: 'Built-in Coin Sweep', desc: 'Consolidate scattered UTXOs from multiple accounts and address types into a single destination securely and easily.' },
+  { title: 'Privacy Exchange Integrations', desc: 'Safely and anonymously swap coins using privacy-focused exchanges like Trocador and Exolix without risking wallet integrity.' },
   { title: 'Multi-Send (Transaction Batching)', desc: 'Add multiple recipients visually and send one single transaction.' },
   { title: 'Advanced Coin Control', desc: 'View your UTXOs and manually select which ones to include in your transaction to preserve privacy.' },
   { title: 'Dynamic Fee Estimation', desc: 'Real-time rates from the live mempool, ensuring competitive inclusion times.' },
@@ -103,15 +106,18 @@ export default function Welcome() {
         {([['features', 'Features'], ['how', 'How It Works'], ['compare', 'vs Others']] as [Tab, string][]).map(([t, label]) => (
           <button key={t} onClick={() => setTab(t)} style={{
             flex: 1,
-            padding: '6px 4px',
-            fontSize: '10px',
-            fontWeight: tab === t ? 700 : 500,
+            padding: '10px 4px',
+            fontSize: '13px',
+            fontWeight: tab === t ? 700 : 600,
             background: tab === t ? 'var(--orange)' : 'var(--bg-surface)',
             color: tab === t ? '#fff' : 'var(--text-muted)',
             border: 'none',
             borderRadius: '6px',
             cursor: 'pointer',
             transition: 'all 0.15s',
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+            overflow: 'hidden'
           }}>
             {label}
           </button>
