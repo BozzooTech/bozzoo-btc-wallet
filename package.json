@@ -10,7 +10,6 @@
     "build:all": "npm run build && npm run build:firefox",
     "build:live": "cross-env TARGET=live webpack --mode production",
     "deploy": "npm run build:live && gh-pages -d live",
-    "package:all": "npm run build:all",
     "setup": "npm ci && npm run package:all",
     "type-check": "tsc --noEmit",
     "lint": "eslint src/**/*.{js,ts}",

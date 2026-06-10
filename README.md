@@ -112,9 +112,9 @@ Output is generated in `dist/firefox/`
 
 **Build & Package Everything:**
 ```bash
-npm run package:all
+npm run build:all
 ```
-This compiles both versions and generates the final `.zip` artifacts in the `releases/` folder.
+This builds both versions for chrome and firefox based browsers
 
 ---
 
