@@ -32,8 +32,9 @@ if (typeof globalThis.btoa === 'undefined') {
   globalThis.atob = (b64: string) => Buffer.from(b64, 'base64').toString('binary');
 }
 
-//  Mock chrome.storage.local 
+//  Mock chrome.storage.local & session 
 const mockStore: Record<string, unknown> = {};
+const mockSessionStore: Record<string, unknown> = {};
 
 const mockChromeStorage = {
   local: {
@@ -55,6 +56,28 @@ const mockChromeStorage = {
     }),
     clear: jest.fn((cb?: () => void) => {
       Object.keys(mockStore).forEach(k => delete mockStore[k]);
+      if (cb) cb();
+    }),
+  },
+  session: {
+    get: jest.fn((keys: string | string[], cb: (result: Record<string, unknown>) => void) => {
+      const result: Record<string, unknown> = {};
+      const keyArr = typeof keys === 'string' ? [keys] : keys;
+      for (const key of keyArr) {
+        if (key in mockSessionStore) result[key] = mockSessionStore[key];
+      }
+      cb(result);
+    }),
+    set: jest.fn((items: Record<string, unknown>, cb?: () => void) => {
+      Object.assign(mockSessionStore, items);
+      if (cb) cb();
+    }),
+    remove: jest.fn((key: string, cb?: () => void) => {
+      delete mockSessionStore[key];
+      if (cb) cb();
+    }),
+    clear: jest.fn((cb?: () => void) => {
+      Object.keys(mockSessionStore).forEach(k => delete mockSessionStore[k]);
       if (cb) cb();
     }),
   },
@@ -132,6 +155,7 @@ const localStore: Record<string, string> = {};
 //  Cleanup helper 
 export function clearAllMockStores(): void {
   Object.keys(mockStore).forEach(k => delete mockStore[k]);
+  Object.keys(mockSessionStore).forEach(k => delete mockSessionStore[k]);
   Object.keys(sessionStore).forEach(k => delete sessionStore[k]);
   Object.keys(localStore).forEach(k => delete localStore[k]);
   mockChromeRuntime.lastError = null;

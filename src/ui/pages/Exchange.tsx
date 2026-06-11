@@ -1,10 +1,11 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { AppContext } from '../App';
 import TopNav from '../components/TopNav';
 import GlobalHeader from '../components/GlobalHeader';
 
 export default function Exchange() {
   const { navigate } = useContext(AppContext);
+  const [bannerFailed, setBannerFailed] = useState(false);
 
   const exchanges = [
     {
@@ -42,6 +43,41 @@ export default function Exchange() {
         <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '24px', textAlign: 'center', maxWidth: '500px', lineHeight: 1.5 }}>
           Swap coins securely with trusted privacy-focused exchange partners.
         </p>
+
+        <div style={{ marginBottom: '24px', width: '100%', maxWidth: '700px', display: 'flex', justifyContent: 'center' }}>
+          <a href="https://moneroswapper.io/?ref=af9a202a" target="_blank" rel="noopener" style={{ width: '100%', display: 'block', textDecoration: 'none' }}>
+            <div style={{
+              width: '100%',
+              background: 'linear-gradient(135deg, #f37221cb 0%, #111 100%)',
+              borderRadius: '8px',
+              border: '1px solid var(--border)',
+              padding: '16px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxSizing: 'border-box',
+              minHeight: '80px',
+              boxShadow: 'var(--shadow-sm)'
+            }}>
+              <div style={{ flex: 1, textAlign: 'left' }}>
+                <h4 style={{ margin: 0, color: '#fff', fontSize: '15px', fontWeight: 600 }}>MoneroSwapper -  1900+ Coins - No KYC </h4>
+                <p style={{ margin: '4px 0 0 0', color: 'rgba(255,255,255,0.8)', fontSize: '12px' }}>Fast, anonymous cryptocurrency exchange swaps without KYC.</p>
+              </div>
+              <div style={{ paddingLeft: '16px' }}>
+                <span style={{
+                  background: 'rgba(255,255,255,0.2)',
+                  color: '#fff',
+                  padding: '6px 12px',
+                  borderRadius: '20px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>Swap Now</span>
+              </div>
+            </div>
+          </a>
+        </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', width: '100%', maxWidth: '700px' }}>
           {exchanges.map((exchange) => (
@@ -83,6 +119,7 @@ export default function Exchange() {
             </div>
           ))}
         </div>
+
       </div>
 
       <TopNav />

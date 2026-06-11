@@ -23,8 +23,7 @@
     "service_worker": "background.js",
     "scripts": [
       "background.js"
-    ],
-    "type": "module"
+    ]
   },
   "permissions": [
     "storage",
@@ -36,7 +35,8 @@
     "https://blockchain.info/*",
     "https://api.binance.com/*",
     "https://mempool.ninja/*",
-    "https://trocador.app/*"
+    "https://trocador.app/*",
+    "https://moneroswapper.io/*"
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self';"

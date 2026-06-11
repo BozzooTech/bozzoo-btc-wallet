@@ -33,3 +33,5 @@ coverage/
 
 # Packaged extension zips (build artifacts)
 *.zip
+
+moneroswapperapi-doc/

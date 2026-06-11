@@ -23,76 +23,108 @@ const storageAPI: chrome.storage.LocalStorageArea | null =
 function storageSet(key: string, value: unknown): Promise<void> {
   if (!storageAPI) {
     if (typeof window !== 'undefined' && window.localStorage) {
-      window.localStorage.setItem(key, JSON.stringify(value));
+      try {
+        window.localStorage.setItem(key, JSON.stringify(value));
+      } catch (err) {
+        return Promise.reject(err);
+      }
     }
     return Promise.resolve();
   }
   return new Promise((resolve, reject) => {
-    storageAPI.set({ [key]: value }, () => {
-      if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
-      } else {
-        resolve();
-      }
-    });
+    try {
+      storageAPI.set({ [key]: value }, () => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+        } else {
+          resolve();
+        }
+      });
+    } catch (err) {
+      reject(err);
+    }
   });
 }
 
 function storageGet<T>(key: string): Promise<T | undefined> {
   if (!storageAPI) {
     if (typeof window !== 'undefined' && window.localStorage) {
-      const item = window.localStorage.getItem(key);
-      if (item) {
-        try { return Promise.resolve(JSON.parse(item) as T); }
-        catch { return Promise.resolve(item as any); }
+      try {
+        const item = window.localStorage.getItem(key);
+        if (item) {
+          try { return Promise.resolve(JSON.parse(item) as T); }
+          catch { return Promise.resolve(item as any); }
+        }
+      } catch (err) {
+        return Promise.reject(err);
       }
     }
     return Promise.resolve(undefined);
   }
   return new Promise((resolve, reject) => {
-    storageAPI.get(key, (result) => {
-      if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
-      } else {
-        resolve(result[key] as T | undefined);
-      }
-    });
+    try {
+      storageAPI.get(key, (result) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+        } else {
+          resolve(result[key] as T | undefined);
+        }
+      });
+    } catch (err) {
+      reject(err);
+    }
   });
 }
 
 function storageRemove(key: string): Promise<void> {
   if (!storageAPI) {
     if (typeof window !== 'undefined' && window.localStorage) {
-      window.localStorage.removeItem(key);
+      try {
+        window.localStorage.removeItem(key);
+      } catch (err) {
+        return Promise.reject(err);
+      }
     }
     return Promise.resolve();
   }
   return new Promise((resolve, reject) => {
-    storageAPI.remove(key, () => {
-      if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
-      } else {
-        resolve();
-      }
-    });
+    try {
+      storageAPI.remove(key, () => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+        } else {
+          resolve();
+        }
+      });
+    } catch (err) {
+      reject(err);
+    }
   });
 }
 
 export function storageClear(): Promise<void> {
   if (!storageAPI) {
     if (typeof window !== 'undefined' && window.localStorage) {
-      window.localStorage.clear();
+      try {
+        window.localStorage.clear();
+      } catch (err) {
+        return Promise.reject(err);
+      }
     }
     return Promise.resolve();
   }
   return new Promise((resolve, reject) => {
-    storageAPI.clear(() => {
-      if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
-      } else {
-        resolve();
-      }
-    });
+    try {
+      storageAPI.clear(() => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+        } else {
+          resolve();
+        }
+      });
+    } catch (err) {
+      reject(err);
+    }
   });
 }
 

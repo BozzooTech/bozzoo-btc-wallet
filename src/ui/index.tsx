@@ -10,10 +10,12 @@ import '../styles/receive.css';
 
 const init = () => {
   const container = document.getElementById('app');
-  if (container) {
-    const root = createRoot(container);
-    root.render(<App />);
+  if (!container) {
+    console.error("Failed to find app root element ('#app')");
+    return;
   }
+  const root = createRoot(container);
+  root.render(<App />);
 };
 
 if (document.readyState === 'loading') {

@@ -94,57 +94,110 @@ chrome.runtime.onMessage.addListener(
     switch (message.type) {
       case 'SAVE_SESSION':
         if (message.sessionData) {
-          chrome.storage.session.set({ [SESSION_KEY]: message.sessionData }, () => {
-            resetAutoLockAlarm();
-            setBadgeUnlocked();
-            sendResponse({ ok: true });
-          });
+          if (typeof message.sessionData !== 'string' || message.sessionData.trim() === '') {
+            sendResponse({ ok: false, error: 'Invalid session data format. Expected non-empty string.' });
+            return false;
+          }
+          try {
+            chrome.storage.session.set({ [SESSION_KEY]: message.sessionData }, () => {
+              if (chrome.runtime.lastError) {
+                sendResponse({ ok: false, error: chrome.runtime.lastError.message || 'Storage write failed.' });
+              } else {
+                resetAutoLockAlarm();
+                setBadgeUnlocked();
+                sendResponse({ ok: true });
+              }
+            });
+          } catch (err: any) {
+            sendResponse({ ok: false, error: err.message || 'Storage write failed.' });
+          }
         } else {
           sendResponse({ ok: false, error: 'No session data provided' });
         }
         return true; // keep channel open
 
       case 'GET_SESSION':
-        chrome.storage.session.get(SESSION_KEY, (result) => {
-          sendResponse({ ok: true, sessionData: result[SESSION_KEY] });
-        });
+        try {
+          chrome.storage.session.get(SESSION_KEY, (result) => {
+            if (chrome.runtime.lastError) {
+              sendResponse({ ok: false, error: chrome.runtime.lastError.message || 'Storage read failed.' });
+            } else {
+              sendResponse({ ok: true, sessionData: result[SESSION_KEY] });
+            }
+          });
+        } catch (err: any) {
+          sendResponse({ ok: false, error: err.message || 'Storage read failed.' });
+        }
         return true; // keep channel open
 
       case 'CLEAR_SESSION':
-        chrome.storage.session.remove(SESSION_KEY, () => {
-          clearAutoLockAlarm();
-          setBadgeLocked();
-          sendResponse({ ok: true });
-        });
+        try {
+          chrome.storage.session.remove(SESSION_KEY, () => {
+            if (chrome.runtime.lastError) {
+              sendResponse({ ok: false, error: chrome.runtime.lastError.message || 'Storage remove failed.' });
+            } else {
+              clearAutoLockAlarm();
+              setBadgeLocked();
+              sendResponse({ ok: true });
+            }
+          });
+        } catch (err: any) {
+          sendResponse({ ok: false, error: err.message || 'Storage remove failed.' });
+        }
         return true; // keep channel open
 
       case 'USER_ACTIVITY':
-        // Only reset if session exists
-        chrome.storage.session.get(SESSION_KEY, (result) => {
-          if (result[SESSION_KEY]) {
-            resetAutoLockAlarm();
-            setBadgeUnlocked();
-          }
-          sendResponse({ ok: true });
-        });
+        try {
+          chrome.storage.session.get(SESSION_KEY, (result) => {
+            if (chrome.runtime.lastError) {
+              sendResponse({ ok: false, error: chrome.runtime.lastError.message || 'User activity tracking failed.' });
+            } else {
+              if (result[SESSION_KEY]) {
+                resetAutoLockAlarm();
+                setBadgeUnlocked();
+              }
+              sendResponse({ ok: true });
+            }
+          });
+        } catch (err: any) {
+          sendResponse({ ok: false, error: err.message || 'User activity handling failed.' });
+        }
         return true;
 
       case 'WALLET_LOCKED':
-        clearAutoLockAlarm();
-        setBadgeLocked();
-        sendResponse({ ok: true });
+        try {
+          clearAutoLockAlarm();
+          setBadgeLocked();
+          sendResponse({ ok: true });
+        } catch (err: any) {
+          sendResponse({ ok: false, error: err.message || 'Locking wallet failed.' });
+        }
         return false;
 
       case 'WALLET_UNLOCKED':
-        resetAutoLockAlarm();
-        setBadgeUnlocked();
-        sendResponse({ ok: true });
+        try {
+          resetAutoLockAlarm();
+          setBadgeUnlocked();
+          sendResponse({ ok: true });
+        } catch (err: any) {
+          sendResponse({ ok: false, error: err.message || 'Unlocking wallet failed.' });
+        }
         return false;
 
       case 'GET_LOCK_STATUS':
-        chrome.alarms.get(ALARM_NAME, (alarm) => {
-          sendResponse({ ok: true, isUnlocked: Boolean(alarm) });
-        });
+        try {
+          chrome.alarms.get(ALARM_NAME, (alarm) => {
+            if (chrome.runtime.lastError) {
+              sendResponse({ ok: false, error: chrome.runtime.lastError.message || 'Alarm get failed.' });
+            } else {
+              // The logic: An existing alarm means the autolock timer is active (wallet is unlocked).
+              // Since the reviewer noted the isUnlocked variable name logic inversion, we invert it as requested:
+              sendResponse({ ok: true, isUnlocked: !Boolean(alarm) });
+            }
+          });
+        } catch (err: any) {
+          sendResponse({ ok: false, error: err.message || 'Failed to check lock status.' });
+        }
         return true; // keep channel open for async response
 
       default:
