@@ -1,11 +1,7 @@
-import { useContext, useState } from 'react';
-import { AppContext } from '../App';
 import TopNav from '../components/TopNav';
 import GlobalHeader from '../components/GlobalHeader';
 
 export default function Exchange() {
-  const { navigate } = useContext(AppContext);
-  const [bannerFailed, setBannerFailed] = useState(false);
 
   const exchanges = [
     {
