@@ -133,7 +133,7 @@ export default function Settings() {
         <div style={{ textAlign: 'center', marginTop: '32px', color: 'var(--text-muted)', fontSize: '11px', lineHeight: '1.6' }}>
           <div style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>Bozzoo Wallet v1.0.0</div>
           <div>Open-Source | Non-Custodial</div>
-          <a href="https://github.com/BozzooTech/bozzoo-btc-wallet" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--orange)', textDecoration: 'none', display: 'inline-block', marginTop: '8px' }}>
+          <a href="https://github.com/bsr-oss/bozzoo-btc-wallet" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--orange)', textDecoration: 'none', display: 'inline-block', marginTop: '8px' }}>
             View on GitHub
           </a>
         </div>

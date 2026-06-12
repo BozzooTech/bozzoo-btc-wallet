@@ -59,10 +59,10 @@
     "elliptic": "^6.6.1",
     "uuid": "^11.1.1"
   },
-  "author": "BozzooTech",
+  "author": "bsr",
   "license": "GPL-3.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/BozzooTech/bozzoo-btc-wallet"
+    "url": "https://github.com/bsr-oss/bozzoo-btc-wallet"
   }
 }

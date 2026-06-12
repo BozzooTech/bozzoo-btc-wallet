@@ -5,7 +5,7 @@
 
 # Bozzoo Bitcoin Wallet
 
-**[🚀 Try the Live Web Wallet here!](https://bozzootech.github.io/bozzoo-btc-wallet/)**
+**[🚀 Try the Live Web Wallet here!](https://bsr-oss.github.io/bozzoo-btc-wallet/)**
 
 A **privacy-focused, open-source, non-custodial HD Bitcoin wallet** built specifically as a secure browser extension.
 
@@ -81,7 +81,7 @@ There are many Bitcoin web wallets available, but Bozzoo was built from the grou
 Click the copy button on the block below to copy the command, then paste it into your terminal:
 
 ```bash
-git clone https://github.com/BozzooTech/bozzoo-btc-wallet.git
+git clone https://github.com/bsr-oss/bozzoo-btc-wallet.git
 cd bozzoo-btc-wallet
 ```
 
