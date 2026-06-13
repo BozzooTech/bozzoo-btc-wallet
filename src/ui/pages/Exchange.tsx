@@ -41,7 +41,7 @@ export default function Exchange() {
         </p>
 
         <div style={{ marginBottom: '24px', width: '100%', maxWidth: '700px', display: 'flex', justifyContent: 'center' }}>
-          <a href="https://moneroswapper.io/?ref=af9a202a" target="_blank" rel="noopener" style={{ width: '100%', display: 'block', textDecoration: 'none' }}>
+          <a href="https://moneroswapper.io/?ref=ef79ff6c" target="_blank" rel="noopener" style={{ width: '100%', display: 'block', textDecoration: 'none' }}>
             <div style={{
               width: '100%',
               background: 'linear-gradient(135deg, #f37221cb 0%, #111 100%)',
